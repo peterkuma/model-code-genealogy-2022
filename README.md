@@ -25,7 +25,9 @@ A CSV file containing a database of climate models and their code genealogy.
 
 An example subset file listing models to calculate weights for.
 
-## model\_weights
+## Programs
+
+### model\_weights
 
 ```
 Calculate model weights based on code genealogy.
