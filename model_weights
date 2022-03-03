@@ -1,0 +1,264 @@
+#!/usr/bin/env python3
+'''Calculate model weights based on code genealogy.
+
+Usage: model_weights <type> <models> [<subset>]
+
+Arguments:
+
+- type: Type of "democracy". One of: "variant", "model", "institution", "country", "code".
+- models: Table of all models (CSV).
+- subset: List of models to calculate weights for (CSV).
+
+Files:
+
+The models CSV file should be "models.csv", supplied with the code. The optional
+subset CSV file should contains a single column "Model" with a list of models,
+referring to a model or a variant in the "Model" or "CMIPx names" columns
+of the models file, respectively.
+
+Example:
+
+model_weights code models.csv subset.csv
+'''
+
+import sys
+import numpy as np
+import pandas as pd
+from fractions import Fraction
+
+def read_models(filename):
+	f = pd.read_csv(filename)
+	model = list(f['Model'])
+	parents = list(f['Parents'])
+	predecessor = list(f['Predecessor'])
+	institute = list(f['Institute'])
+	country = list(f['Country'])
+	cmip3_names = list(f['CMIP3 names'])
+	cmip5_names = list(f['CMIP5 names'])
+	cmip6_names = list(f['CMIP6 names'])
+	n = len(model)
+
+	active = []
+	variants = []
+	for i in range(n):
+		active += [
+			type(cmip3_names[i]) is str or \
+			type(cmip5_names[i]) is str or \
+			type(cmip6_names[i]) is str
+		]
+		variants += [[]]
+		for s in (cmip3_names[i], cmip5_names[i], cmip6_names[i]):
+			if type(s) is str and len(s) > 0:
+				variants[i] += s.split(',')
+
+	for i, x in enumerate(predecessor):
+		if type(x) is not str:
+			predecessor[i] = None
+
+	for i, x in enumerate(parents):
+		if type(x) is str and ',' in x:
+			parents[i] = x.split(',')[:1]
+		elif type(x) is str:
+			parents[i] = [x]
+		else:
+			parents[i] = []
+	return {
+		'model': model,
+		'active': active,
+		'parents': parents,
+		'predecessor': predecessor,
+		'variants': variants,
+		'institute': institute,
+		'country': country,
+	}
+
+def read_subset(filename):
+	f = pd.read_csv(filename)
+	return list(f['Model'])
+
+def build_tree(d, subset=None):
+	nodes = {}
+	roots = []
+	for i, model in enumerate(d['model']):
+		nodes[model] = {
+			'model': model,
+			'active': d['active'][i],
+			'has_active': False,
+			'parents': d['parents'][i],
+			'predecessor': d['predecessor'][i],
+			'group': [],
+			'successor': None,
+			'children': [],
+			'variants': d['variants'][i],
+			'institute': d['institute'][i],
+			'country': d['country'][i],
+		}
+		if d['parents'][i] == [] and d['predecessor'][i] is None:
+			roots += [nodes[model]]
+	for model, node in nodes.items():
+		for x in node['parents']:
+			nodes[x]['children'] += [model]
+		if subset is not None:
+			node['active'] = model in subset or \
+				any([x in subset for x in node['variants']])
+		if node['predecessor'] is not None:
+			nodes[node['predecessor']]['successor'] = model
+	for model, node in nodes.items():
+		predecessor = node['predecessor']
+		while predecessor is not None:
+			node['group'] = [predecessor] + node['group']
+			predecessor = nodes[predecessor]['predecessor']
+		successor = node['successor']
+		node['group'] += [model]
+		while successor is not None:
+			node['group'] += [successor]
+			successor = nodes[successor]['successor']
+		node['is_group_leader'] = node['model'] == node['group'][0]
+		node['group_leader'] = node['group'][0]
+	nodes_current = nodes.values()
+	while nodes_current != []:
+		nodes_new = []
+		for node in nodes_current:
+			if node['active'] or node['has_active']:
+				for model in (node['group'] + node['parents']):
+					if not nodes[model]['has_active']:
+						nodes[model]['has_active'] = True
+						nodes_new += [nodes[model]]
+		nodes_current = nodes_new
+	for model, node in nodes.items():
+		gl = nodes[node['group_leader']]
+		gl['group_parents'] = list(set([
+			nodes[y]['group_leader']
+			for x in node['group']
+			for y in nodes[x]['parents']
+		]))
+		gl['group_children'] = list(set([
+			nodes[y]['group_leader'] \
+			for x in node['group'] \
+			for y in nodes[x]['children'] \
+			if nodes[y]['has_active']
+		]))
+		gl['active_group'] = any(nodes[x]['active'] for x in node['group'])
+	return {
+		'roots': roots,
+		'nodes': nodes,
+	}
+
+def calc_weights_generic(tree, var):
+	nodes = tree['nodes']
+	d = {}
+	for node in nodes.values():
+		if node['active']:
+			d[node[var]] = d.get(node[var], 0) + 1
+	n = len(d.keys())
+	for model, node in nodes.items():
+		if node['active']:
+			m = d[node[var]]
+			node['w'] = Fraction(1, n*m)
+		else:
+			node['w'] = Fraction(0, 1)
+
+def calc_weights_code(tree):
+	nodes = tree['nodes']
+	roots = tree['roots']
+	n = sum([node['has_active'] for node in roots])
+	#w = Fraction(1, n)
+	w = Fraction(1, 1)
+	for node in roots:
+		if node['has_active']:
+			node['group_w'] = w
+		node['done'] = True
+	current_nodes = [x for x in roots if x['has_active']]
+	while current_nodes != []:
+		new_nodes = []
+		for node in current_nodes:
+			n = len(node['group_children']) + node['active_group']
+			w = node['group_w']/n
+			for model in node['group_children']:
+				gl = nodes[model]
+				gl['group_w'] = gl.get('group_w', 0) + w
+				gl['done_group_parents'] = list(set(
+					gl.get('done_group_parents', []) + \
+					[node['model']]
+				))
+				if gl['done_group_parents'] == gl['group_parents'] and \
+					gl['has_active']:
+					new_nodes += [gl]
+			node['group_w'] = w*node['active_group']
+		current_nodes = new_nodes
+	for node in nodes.values():
+		n = sum([nodes[x]['active'] for x in node['group']])
+		if node['active']:
+			node['w'] = nodes[node['group_leader']]['group_w']/n
+		else:
+			node['w'] = Fraction(0, 1)
+
+if __name__ == '__main__':
+	if len(sys.argv) not in (3, 4):
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	type_ = sys.argv[1]
+	models_file = sys.argv[2]
+	if len(sys.argv) == 4:
+		subset_file = sys.argv[3]
+	else:
+		subset_file = None
+
+	models = read_models(models_file)
+	if subset_file is not None:
+		subset = read_subset(subset_file)
+	else:
+		subset = None
+
+	tree = build_tree(models, subset)
+
+	if type_ == 'code':
+		calc_weights = calc_weights_code
+	elif type_ == 'variant':
+		calc_weights = lambda tree: None
+	elif type_ in ('model', 'institute', 'country'):
+		calc_weights = lambda tree: calc_weights_generic(tree, type_)
+	else:
+		raise ValueError('Invalid type "%s"' % type_)
+
+	calc_weights(tree)
+
+	if type_ == 'variant':
+		n = 0
+		for node in tree['nodes'].values():
+			if node['active']:
+				if subset is not None:
+					m = sum([x in subset for x in node['variants']])
+				else:
+					m = len(node['variants'])
+				if m > 0:
+					n += m
+				else:
+					n += 1
+		w = Fraction(1, n)
+		for node in tree['nodes'].values():
+			if node['active']:
+				if subset is not None:
+					m = sum([x in subset for x in node['variants']])
+				else:
+					m = len(node['variants'])
+				if m > 0:
+					for x in node['variants']:
+						if subset is None or x in subset:
+							print(x, w)
+				else:
+					print(node['model'], w)
+
+	else:
+		for node in tree['nodes'].values():
+			if node['w'] > 0:
+				if subset is not None:
+					n = sum([x in subset for x in node['variants']])
+				else:
+					n = len(node['variants'])
+				if n > 0:
+					for x in node['variants']:
+						if subset is None or x in subset:
+							print(x, node['w']/n)
+				else:
+					print(node['model'], node['w'])
