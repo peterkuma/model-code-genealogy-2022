@@ -162,8 +162,8 @@ def calc_weights_code(tree):
 	nodes = tree['nodes']
 	roots = tree['roots']
 	n = sum([node['has_active'] for node in roots])
-	#w = Fraction(1, n)
-	w = Fraction(1, 1)
+	w = Fraction(1, n)
+	#w = Fraction(1, 1)
 	for node in roots:
 		if node['has_active']:
 			node['group_w'] = w
