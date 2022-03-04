@@ -25,6 +25,14 @@ A CSV file containing a database of climate models and their code genealogy.
 
 An example subset file listing models to calculate weights for.
 
+### ar6\_cmip5.csv
+
+CMIP5 models table from IPCC AR6.
+
+### ar6\_cmip6.csv
+
+CMIP6 models table from IPCC AR6.
+
 ## Programs
 
 ### model\_weights
