@@ -22,6 +22,7 @@ model_weights code models.csv subset.csv
 '''
 
 import sys
+import csv
 import numpy as np
 import pandas as pd
 from fractions import Fraction
@@ -223,42 +224,52 @@ if __name__ == '__main__':
 
 	calc_weights(tree)
 
+	tree_lookup = {}
+	for node in tree['nodes'].values():
+		tree_lookup[node['model']] = node
+		for variant in node['variants']:
+			tree_lookup[variant] = node
+
+	if subset is None:
+		subset = []
+		for node in tree['nodes'].values():
+			if len(node['variants']) > 0:
+				subset += node['variants']
+			else:
+				subset += [node['model']]
+
+	writer = csv.writer(sys.stdout)
+	writer.writerow(['Model', 'Weight fraction', 'Weight'])
+
 	if type_ == 'variant':
 		n = 0
-		for node in tree['nodes'].values():
-			if node['active']:
-				if subset is not None:
-					m = sum([x in subset for x in node['variants']])
-				else:
-					m = len(node['variants'])
-				if m > 0:
-					n += m
-				else:
-					n += 1
+		for model in subset:
+			try:
+				node = tree_lookup[model]
+			except KeyError:
+				continue
+			m = sum([x in subset for x in node['variants']])
+			if m > 0:
+				n += m
+			else:
+				n += 1
 		w = Fraction(1, n)
-		for node in tree['nodes'].values():
-			if node['active']:
-				if subset is not None:
-					m = sum([x in subset for x in node['variants']])
-				else:
-					m = len(node['variants'])
-				if m > 0:
-					for x in node['variants']:
-						if subset is None or x in subset:
-							print(x, w)
-				else:
-					print(node['model'], w)
-
+		for model in subset:
+			try:
+				node = tree_lookup[model]
+			except:
+				writer.writerow([model, 'NA', 'NA'])
+				continue
+			writer.writerow([model, w, float(w)])
 	else:
-		for node in tree['nodes'].values():
-			if node['w'] > 0:
-				if subset is not None:
-					n = sum([x in subset for x in node['variants']])
-				else:
-					n = len(node['variants'])
-				if n > 0:
-					for x in node['variants']:
-						if subset is None or x in subset:
-							print(x, node['w']/n)
-				else:
-					print(node['model'], node['w'])
+		for model in subset:
+			try:
+				node = tree_lookup[model]
+			except:
+				writer.writerow([model, 'NA', 'NA'])
+				continue
+			if model in node['variants']:
+				n = sum([x in subset for x in node['variants']])
+				writer.writerow([model, node['w']/n, float(node['w']/n)])
+			else:
+				writer.writerow([model, node['w'], float(node['w'])])
