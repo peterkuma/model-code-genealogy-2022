@@ -17,21 +17,12 @@ based on multiple choices of model "democracy":
 
 ## Files
 
-### models.csv
-
-A CSV file containing a database of climate models and their code genealogy.
-
-### subset.csv
-
-An example subset file listing models to calculate weights for.
-
-### ar6\_cmip5.csv
-
-CMIP5 models table from IPCC AR6.
-
-### ar6\_cmip6.csv
-
-CMIP6 models table from IPCC AR6.
+- `models.csv`: A CSV file containing a database of climate models and their
+  code genealogy.
+- `subset.csv`: An example subset file listing models to calculate weights for.
+- `ar6_cmip5.csv`: CMIP5 models table from IPCC AR6.
+- `ar6_cmip6.csv`: CMIP6 models table from IPCC AR6.
+- `zelinka2021_table_S1.csv`: Table S1 from Zelinka et al. (2021).
 
 ## Programs
 
