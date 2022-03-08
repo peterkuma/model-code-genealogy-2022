@@ -50,3 +50,17 @@ Example:
 
 model_weights code models.csv subset.csv
 ```
+
+### calc\_model\_stats
+
+```
+Calculate model statistics.
+
+Usage: calc_model_stats <input> <models>
+
+Arguments:
+
+- input: Input data (CSV). The table should contain a column "Model" identifying
+the model, and an arbitrary number of other columns to calculate statistics for.
+- models: Table of all models (CSV).
+```
