@@ -1,5 +1,5 @@
 Model,Institute,Country,"CMIP3 names","CMIP5 names","CMIP6 names",Type,Parents,Predecessor
-IFS/ARPEGE,ECMWF/CNRM,Europe,"CMIP3 names",,"ECMWF-IFS-HR,ECMWF-IFS-LR,ECMWF-IFS-MR",AGCM,,
+IFS/ARPEGE,ECMWF/CNRM,Europe,,,"ECMWF-IFS-HR,ECMWF-IFS-LR,ECMWF-IFS-MR",AGCM,,
 ECHAM4,MPI,Germany,"ingv echam4",,,AGCM,IFS/ARPEGE,
 ECHAM5,MPI,Germany,"mpi echam5",,,AGCM,,ECHAM4
 ECHAM6,MPI,Germany,,,,AGCM,,ECHAM5
