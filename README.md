@@ -15,7 +15,9 @@ based on multiple choices of model "democracy":
 - numpy
 - pandas
 
-## Files
+## Input files
+
+Input files are stored in the `input` directory.
 
 - `models.csv`: A CSV file containing a database of climate models and their
   code genealogy.
@@ -25,6 +27,8 @@ based on multiple choices of model "democracy":
 - `zelinka2021_table_S1.csv`: Table S1 from Zelinka et al. (2021).
 
 ## Programs
+
+Programs are stored in the `bin` directory.
 
 ### model\_weights
 
@@ -48,7 +52,7 @@ of the models file, respectively.
 
 Example:
 
-model_weights code models.csv subset.csv
+bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
 ```
 
 ### calc\_model\_stats
@@ -63,4 +67,9 @@ Arguments:
 - input: Input data (CSV). The table should contain a column "Model" identifying
 the model, and an arbitrary number of other columns to calculate statistics for.
 - models: Table of all models (CSV).
+
+Examples:
+
+bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/model_stats_zelinka2021_table_S1.csv
+bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 ```

@@ -18,7 +18,7 @@ of the models file, respectively.
 
 Example:
 
-model_weights code models.csv subset.csv
+bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
 '''
 
 import sys
