@@ -1,28 +1,39 @@
 #!/usr/bin/env python3
 '''Calculate model statistics.
 
-Usage: calc_model_stats <input> [<name> <weights>...]
+Usage: calc_model_stats <input> <models>
 
 Arguments:
 
 - input: Input data (CSV). The table should contain a column "Model" identifying
 the model, and an arbitrary number of other columns to calculate statistics for.
-- <name>: Name of weights.
-- <weights>: Model weights - the output of model_weights (CSV).
+- models: Table of all models (CSV).
 '''
+
+from importlib.machinery import SourceFileLoader
+model_weights = SourceFileLoader("module.name", "model_weights").load_module()
 
 import sys
 import pandas
 import csv
 import numpy as np
 
+def get_weights(type_, models, subset):
+	weights = {}
+	d = model_weights.model_weights(type_, models, subset)
+	for i, model in enumerate(d['model']):
+		if np.isfinite(d['weight'][i]):
+			weights[model] = d['weight'][i]
+	return weights
+
 if __name__ == '__main__':
-	if len(sys.argv) < 4 or len(sys.argv) % 2 != 0:
+	if len(sys.argv) != 3:
 		sys.stderr.write(sys.modules[__name__].__doc__)
 		sys.exit(1)
 	input_ = sys.argv[1]
-	names = sys.argv[2::2]
-	weight_files = sys.argv[3::2]
+	models_file = sys.argv[2]
+
+	models_table = model_weights.read_models(models_file)
 
 	d = pandas.read_csv(input_)
 	vars_ = list(d.keys())
@@ -33,30 +44,34 @@ if __name__ == '__main__':
 	for var in vars_:
 		out[var + ' mean'] = [d[var].mean()]
 		out[var + ' std'] = [d[var].std()]
-	for name, weight_file in zip(names, weight_files):
-		out['Type'] += [name]
-		d_w = pandas.read_csv(weight_file)
-		weights = {}
-		for i, model in enumerate(d_w['Model']):
-			weights[model] = d_w['Weight'][i]
+	for type_ in ['variant', 'model', 'institute', 'country', 'code']:
+		out['Type'] += [type_]
 		for var in vars_:
-			mean = 0
-			std = 0
-			n = 0
-			w = 0
+			models = []
 			for i, model in enumerate(d['Model']):
-				if model in weights and np.isfinite(d[var][i]):
-					mean += weights[model]*d[var][i]
-					n += 1
-					w += weights[model]
-			mean /= w
-			for i, model in enumerate(d['Model']):
-				if model in weights and np.isfinite(d[var][i]):
-					std += weights[model]*(d[var][i] - mean)**2
-			std = np.sqrt(std/w)
+				if np.isfinite(d[var][i]):
+					models += [model]
+			if len(models) > 0:
+				weights = get_weights(type_, models_table, models)
+				mean = 0
+				std = 0
+				n = 0
+				w = 0
+				for i, model in enumerate(d['Model']):
+					if model in weights and np.isfinite(d[var][i]):
+						mean += weights[model]*d[var][i]
+						n += 1
+						w += weights[model]
+				mean /= w
+				for i, model in enumerate(d['Model']):
+					if model in weights and np.isfinite(d[var][i]):
+						std += weights[model]*(d[var][i] - mean)**2
+				std = np.sqrt(std/w)
+			else:
+				mean = np.nan
+				std = np.nan
 			out[var + ' mean'] = out.get(var + ' mean', []) + [mean]
 			out[var + ' std'] = out.get(var + ' std', []) + [std]
-
 	writer = csv.writer(sys.stdout)
 	outkeys = out.keys()
 	writer.writerow(outkeys)
