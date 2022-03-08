@@ -235,11 +235,7 @@ def model_weights(type_, models, subset):
 				node = tree_lookup[model]
 			except KeyError:
 				continue
-			m = sum([x in subset for x in node['variants']])
-			if m > 0:
-				n += m
-			else:
-				n += 1
+			n += 1
 		w = Fraction(1, n)
 		for model in subset:
 			out['model'] += [model]
