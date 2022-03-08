@@ -25,6 +25,7 @@ Input files are stored in the `input` directory.
 - `ar6_cmip5.csv`: CMIP5 models table from IPCC AR6.
 - `ar6_cmip6.csv`: CMIP6 models table from IPCC AR6.
 - `zelinka2021_table_S1.csv`: Table S1 from Zelinka et al. (2021).
+- `zelinka2021_table_S2.csv`: Table S2 from Zelinka et al. (2021).
 
 ## Programs
 
