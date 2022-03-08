@@ -71,5 +71,6 @@ the model, and an arbitrary number of other columns to calculate statistics for.
 Examples:
 
 bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/model_stats_zelinka2021_table_S1.csv
-bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip6.csv
+bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip5.csv
+bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 ```

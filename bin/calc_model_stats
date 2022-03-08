@@ -12,11 +12,14 @@ the model, and an arbitrary number of other columns to calculate statistics for.
 Examples:
 
 bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/model_stats_zelinka2021_table_S1.csv
-bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip6.csv
+bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip5.csv
+bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 '''
 
+import os
 from importlib.machinery import SourceFileLoader
-model_weights = SourceFileLoader("module.name", "model_weights").load_module()
+model_weights = SourceFileLoader('module.name',
+	os.path.join(os.path.dirname(__file__), 'model_weights')).load_module()
 
 import sys
 import pandas
