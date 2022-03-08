@@ -75,3 +75,22 @@ bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/mode
 bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip5.csv
 bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 ```
+
+### plot\_feedbacks
+
+```
+Plot bar plot with model feedbacks.
+
+Usage: plot_feedbacks <cmip6> <cmip5> <models> <output>
+
+Arguments:
+
+- input: Input data (CSV). The table should contain a column "Model" identifying
+the model, and columns to calculate statistics for.
+- models: Table of all models (CSV).
+- output: Output plot (PDF).
+
+Examples:
+
+bin/plot_feedbacks input/models.csv input/zelinka2021_table_S[12].csv plot/feedbacks.pdf
+```
