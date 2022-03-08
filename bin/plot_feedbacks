@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks.
 
-Usage: plot_feedbacks <input> <models> <output>
+Usage: plot_feedbacks <cmip6> <cmip5> <models> <output>
 
 Arguments:
 
@@ -12,8 +12,7 @@ the model, and columns to calculate statistics for.
 
 Examples:
 
-bin/plot_feedbacks input/zelinka2021_table_S1.csv input/models.csv plot/feedbacks_cmip6.pdf
-bin/plot_feedbacks input/zelinka2021_table_S2.csv input/models.csv plot/feedbacks_cmip5.pdf
+bin/plot_feedbacks input/models.csv input/zelinka2021_table_S[12].csv plot/feedbacks.pdf
 '''
 
 import os
@@ -52,8 +51,6 @@ mpl.rc('grid', color='k')
 mpl.rc('grid', alpha=0.2)
 mpl.rc('grid', lw=0.1)
 
-N = 100000 # Number of samples to bootstrap.
-
 VARS = {
 	'PL_hs': 'Planck',
 	'LR_hs': 'LR',
@@ -65,6 +62,16 @@ VARS = {
 	'NET': 'Net',
 	'ERR': 'Residual',
 }
+VARS2 = {'ECS': 'ECS'}
+VARS3 = {'ERF_2x': 'ERF$_{2x}$'}
+
+YLABEL = 'Feedback difference (mWm$^{-2}K^{-1}$)'
+YLABEL2 = 'ECS difference (K)'
+YLABEL3 = 'ERF$_{2x}$ difference (mWm$^{-2}$)'
+
+YLIM = [-130, 130]
+YLIM2 = [-0.1, 0.6]
+YLIM3 = [-120, 120]
 
 TYPES = ['variant', 'model', 'institute', 'country', 'code']
 
@@ -76,23 +83,11 @@ def get_weights(type_, models, subset):
 			weights[model] = d['weight'][i]
 	return weights
 
-if __name__ == '__main__':
-	if len(sys.argv) != 4:
-		sys.stderr.write(sys.modules[__name__].__doc__)
-		sys.exit(1)
-	input_ = sys.argv[1]
-	models_file = sys.argv[2]
-	output = sys.argv[3]
-
-	models_table = model_weights.read_models(models_file)
-
-	d = pd.read_csv(input_)
-	vars_ = list(d.keys())
-	vars_.remove('Model')
-
+def plot(d, d1, d2, models_table, vars_, \
+	ylim=None, legend=True, scale=1, ylabel=None):
 	out = {}
 	for type_ in TYPES:
-		for var in vars_:
+		for var in vars_.keys():
 			models = []
 			for i, model in enumerate(d['Model']):
 				if np.isfinite(d[var][i]):
@@ -102,31 +97,67 @@ if __name__ == '__main__':
 				w = np.array([weights.get(model, np.nan) for model in models])
 				mask = np.isfinite(w)
 				values = np.array(d[var])
-				#samples = scipy.random.choice(values, N, True, w)
 				out['%s_%s' % (var, type_)] = np.average(values[mask], weights=w[mask])
 
-	plt.figure(figsize=(10, 5))
-	n = len(TYPES) - 1
-	m = len(VARS.keys())
+	n = len(TYPES)
+	m = len(vars_.keys())
+	x = np.arange(m)
+	plt.bar(x, [
+			scale*(np.mean(d1[var]) - np.mean(d2[var])) \
+			for var in vars_.keys()
+		],
+		width=0.7/n,
+		label='CMIP6 - CMIP5',
+		color='k',
+	)
 	for i, type_ in enumerate(TYPES[1:]):
-		x = np.arange(m) + i/n*0.7
+		x = np.arange(m) + (i+1)/n*0.7
 		plt.bar(x, [
-				1000*(out['%s_%s' % (var, type_)] - out['%s_variant' % var]) \
-				for var in VARS.keys() \
-				#for type_ in TYPES[1:]
+				scale*(out['%s_%s' % (var, type_)] - out['%s_variant' % var]) \
+				for var in vars_.keys()
 			],
-			#tick_label=list(VARS.values()),
 			width=0.7/n,
-			label=type_,
+			label=type_.capitalize(),
 			color=COLORS[i],
-			#hatch=HATCH[i],
-			#alpha=0.999,
+			hatch=HATCH[i],
+			alpha=0.999,
 		)
 	plt.gca().set_xticks(np.arange(m) + 0.5*(n-1)/n*0.7)
-	plt.gca().set_xticklabels(VARS.values())
+	plt.gca().set_xticklabels(vars_.values())
 	plt.axhline(0, color='k', lw=0.5)
-	plt.ylabel('Feedback relative to simple average (mWm$^{-2}K^{-1}$)')
-	plt.ylim(-100, 100)
-	plt.legend()
-	plt.title('Effect of different types of multi-model averaging')
+	plt.ylabel(ylabel)
+	plt.ylim(ylim)
+	if legend:
+		plt.legend(loc='upper left')
+
+if __name__ == '__main__':
+	if len(sys.argv) != 5:
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	models_file = sys.argv[1]
+	cmip5 = sys.argv[2]
+	cmip6 = sys.argv[3]
+	output = sys.argv[4]
+
+	models_table = model_weights.read_models(models_file)
+
+	d1 = pd.read_csv(cmip5)
+	d2 = pd.read_csv(cmip6)
+
+	fig = plt.figure(figsize=(12, 8))
+	gs = mpl.gridspec.GridSpec(2, 3, width_ratios=[0.9, 0.1, 0.1], wspace=0.3)
+	fig.add_subplot(gs[0])
+	plt.title('CMIP6')
+	plot(d1, d1, d2, models_table, VARS, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	fig.add_subplot(gs[1])
+	plot(d1, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	fig.add_subplot(gs[2])
+	plot(d1, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
+	fig.add_subplot(gs[3])
+	plt.title('CMIP5')
+	plot(d2, d1, d2, models_table, VARS, legend=False, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	fig.add_subplot(gs[4])
+	plot(d2, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	fig.add_subplot(gs[5])
+	plot(d2, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
 	plt.savefig(output, bbox_inches='tight')
