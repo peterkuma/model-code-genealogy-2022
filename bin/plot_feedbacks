@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+'''Plot bar plot with model feedbacks.
+
+Usage: plot_feedbacks <input> <models> <output>
+
+Arguments:
+
+- input: Input data (CSV). The table should contain a column "Model" identifying
+the model, and columns to calculate statistics for.
+- models: Table of all models (CSV).
+- output: Output plot (PDF).
+
+Examples:
+
+bin/plot_feedbacks input/zelinka2021_table_S1.csv input/models.csv plot/feedbacks_cmip6.pdf
+bin/plot_feedbacks input/zelinka2021_table_S2.csv input/models.csv plot/feedbacks_cmip5.pdf
+'''
+
+import os
+from importlib.machinery import SourceFileLoader
+model_weights = SourceFileLoader('module.name',
+	os.path.join(os.path.dirname(__file__), 'model_weights')).load_module()
+
+import sys
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import scipy
+
+COLORS = ['#0084C8', '#DC0000', '#009100', '#FFC022']
+
+HATCH = [
+	'///',
+	'---',
+	'\\\\\\',
+	'...',
+]
+
+mpl.rc('font', family='Open Sans')
+mpl.rc('axes', linewidth=0.3)
+mpl.rc('axes', grid=True)
+mpl.rc('lines', linewidth=1.2)
+mpl.rc('xtick.major', width=0.3)
+mpl.rc('ytick.major', width=0.3)
+mpl.rc('legend', framealpha=1)
+mpl.rc('legend', facecolor='#eeeeee')
+mpl.rc('legend', edgecolor='none')
+mpl.rc('legend', fancybox=False)
+mpl.rc('legend', fontsize=8)
+mpl.rc('grid', color='k')
+mpl.rc('grid', alpha=0.2)
+mpl.rc('grid', lw=0.1)
+
+N = 100000 # Number of samples to bootstrap.
+
+VARS = {
+	'PL_hs': 'Planck',
+	'LR_hs': 'LR',
+	'RH': 'RH',
+	'ALB': 'Albedo',
+	'CLD': 'Cloud',
+	'CLD_SW': 'Cloud$_{SW}$',
+	'CLD_LW': 'Cloud$_{LW}$',
+	'NET': 'Net',
+	'ERR': 'Residual',
+}
+
+TYPES = ['variant', 'model', 'institute', 'country', 'code']
+
+def get_weights(type_, models, subset):
+	weights = {}
+	d = model_weights.model_weights(type_, models, subset)
+	for i, model in enumerate(d['model']):
+		if np.isfinite(d['weight'][i]):
+			weights[model] = d['weight'][i]
+	return weights
+
+if __name__ == '__main__':
+	if len(sys.argv) != 4:
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	input_ = sys.argv[1]
+	models_file = sys.argv[2]
+	output = sys.argv[3]
+
+	models_table = model_weights.read_models(models_file)
+
+	d = pd.read_csv(input_)
+	vars_ = list(d.keys())
+	vars_.remove('Model')
+
+	out = {}
+	for type_ in TYPES:
+		for var in vars_:
+			models = []
+			for i, model in enumerate(d['Model']):
+				if np.isfinite(d[var][i]):
+					models += [model]
+			if len(models) > 0:
+				weights = get_weights(type_, models_table, models)
+				w = np.array([weights.get(model, np.nan) for model in models])
+				mask = np.isfinite(w)
+				values = np.array(d[var])
+				#samples = scipy.random.choice(values, N, True, w)
+				out['%s_%s' % (var, type_)] = np.average(values[mask], weights=w[mask])
+
+	plt.figure(figsize=(10, 5))
+	n = len(TYPES) - 1
+	m = len(VARS.keys())
+	for i, type_ in enumerate(TYPES[1:]):
+		x = np.arange(m) + i/n*0.7
+		plt.bar(x, [
+				1000*(out['%s_%s' % (var, type_)] - out['%s_variant' % var]) \
+				for var in VARS.keys() \
+				#for type_ in TYPES[1:]
+			],
+			#tick_label=list(VARS.values()),
+			width=0.7/n,
+			label=type_,
+			color=COLORS[i],
+			#hatch=HATCH[i],
+			#alpha=0.999,
+		)
+	plt.gca().set_xticks(np.arange(m) + 0.5*(n-1)/n*0.7)
+	plt.gca().set_xticklabels(VARS.values())
+	plt.axhline(0, color='k', lw=0.5)
+	plt.ylabel('Feedback relative to simple average (mWm$^{-2}K^{-1}$)')
+	plt.ylim(-100, 100)
+	plt.legend()
+	plt.title('Effect of different types of multi-model averaging')
+	plt.savefig(output, bbox_inches='tight')
