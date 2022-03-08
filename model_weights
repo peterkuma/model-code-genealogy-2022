@@ -194,23 +194,7 @@ def calc_weights_code(tree):
 		else:
 			node['w'] = Fraction(0, 1)
 
-if __name__ == '__main__':
-	if len(sys.argv) not in (3, 4):
-		sys.stderr.write(sys.modules[__name__].__doc__)
-		sys.exit(1)
-	type_ = sys.argv[1]
-	models_file = sys.argv[2]
-	if len(sys.argv) == 4:
-		subset_file = sys.argv[3]
-	else:
-		subset_file = None
-
-	models = read_models(models_file)
-	if subset_file is not None:
-		subset = read_subset(subset_file)
-	else:
-		subset = None
-
+def model_weights(type_, models, subset):
 	tree = build_tree(models, subset)
 
 	if type_ == 'code':
@@ -238,8 +222,11 @@ if __name__ == '__main__':
 			else:
 				subset += [node['model']]
 
-	writer = csv.writer(sys.stdout)
-	writer.writerow(['Model', 'Weight fraction', 'Weight'])
+	out = {
+		'model': [],
+		'weight_fraction': [],
+		'weight': [],
+	}
 
 	if type_ == 'variant':
 		n = 0
@@ -255,21 +242,58 @@ if __name__ == '__main__':
 				n += 1
 		w = Fraction(1, n)
 		for model in subset:
+			out['model'] += [model]
 			try:
 				node = tree_lookup[model]
 			except:
-				writer.writerow([model, 'NA', 'NA'])
+				out['weight_fraction'] += [None]
+				out['weight'] += [np.nan]
 				continue
-			writer.writerow([model, w, float(w)])
+			out['weight_fraction'] += [w]
+			out['weight'] += [float(w)]
 	else:
 		for model in subset:
+			out['model'] += [model]
 			try:
 				node = tree_lookup[model]
 			except:
-				writer.writerow([model, 'NA', 'NA'])
+				out['weight_fraction'] += [None]
+				out['weight'] += [np.nan]
 				continue
 			if model in node['variants']:
 				n = sum([x in subset for x in node['variants']])
-				writer.writerow([model, node['w']/n, float(node['w']/n)])
+				out['weight_fraction'] += [node['w']/n]
+				out['weight'] += [float(node['w']/n)]
 			else:
-				writer.writerow([model, node['w'], float(node['w'])])
+				out['weight_fraction'] += [node['w']]
+				out['weight'] += [float(node['w'])]
+	return out
+
+if __name__ == '__main__':
+	if len(sys.argv) not in (3, 4):
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	type_ = sys.argv[1]
+	models_file = sys.argv[2]
+	if len(sys.argv) == 4:
+		subset_file = sys.argv[3]
+	else:
+		subset_file = None
+
+	models = read_models(models_file)
+	if subset_file is not None:
+		subset = read_subset(subset_file)
+	else:
+		subset = None
+
+	out = model_weights(type_, models, subset)
+
+	writer = csv.writer(sys.stdout)
+	writer.writerow(['Model', 'Weight fraction', 'Weight'])
+	for i, model in enumerate(out['model']):
+		writer.writerow([
+			model,
+			out['weight_fraction'][i] if out['weight_fraction'][i] is not None \
+				else 'NA',
+			out['weight'][i] if not np.isnan(out['weight'][i]) else 'NA'
+		])
