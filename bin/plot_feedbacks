@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks.
 
-Usage: plot_feedbacks <cmip6> <cmip5> <models> <output>
+Usage: plot_feedbacks <models> <cmip5> <cmip6> <output>
 
 Arguments:
 
-- input: Input data (CSV). The table should contain a column "Model" identifying
-the model, and columns to calculate statistics for.
 - models: Table of all models (CSV).
+- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
+identifying the model, and columns to calculate statistics for.
 - output: Output plot (PDF).
 
 Examples:
 
-bin/plot_feedbacks input/models.csv input/zelinka2021_table_S[12].csv plot/feedbacks.pdf
+bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks.pdf
 '''
 
 import os
@@ -103,7 +103,7 @@ def plot(d, d1, d2, models_table, vars_, \
 	m = len(vars_.keys())
 	x = np.arange(m)
 	plt.bar(x, [
-			scale*(np.mean(d1[var]) - np.mean(d2[var])) \
+			scale*(np.mean(d2[var]) - np.mean(d1[var])) \
 			for var in vars_.keys()
 		],
 		width=0.7/n,
@@ -148,16 +148,16 @@ if __name__ == '__main__':
 	gs = mpl.gridspec.GridSpec(2, 3, width_ratios=[0.9, 0.1, 0.1], wspace=0.3)
 	fig.add_subplot(gs[0])
 	plt.title('CMIP6')
-	plot(d1, d1, d2, models_table, VARS, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	plot(d2, d1, d2, models_table, VARS, ylim=YLIM, scale=1000, ylabel=YLABEL)
 	fig.add_subplot(gs[1])
-	plot(d1, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	plot(d2, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
 	fig.add_subplot(gs[2])
-	plot(d1, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
+	plot(d2, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
 	fig.add_subplot(gs[3])
 	plt.title('CMIP5')
-	plot(d2, d1, d2, models_table, VARS, legend=False, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	plot(d1, d1, d2, models_table, VARS, legend=False, ylim=YLIM, scale=1000, ylabel=YLABEL)
 	fig.add_subplot(gs[4])
-	plot(d2, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	plot(d1, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
 	fig.add_subplot(gs[5])
-	plot(d2, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
+	plot(d1, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
 	plt.savefig(output, bbox_inches='tight')
