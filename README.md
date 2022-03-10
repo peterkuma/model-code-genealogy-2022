@@ -94,3 +94,22 @@ Examples:
 
 bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks.pdf
 ```
+
+### plot\_feedbacks\_by\_family
+
+```
+Plot bar plot with model feedbacks by model family.
+
+Usage: plot_feedbacks_by_family <models> <cmip5> <cmip6> <output>
+
+Arguments:
+
+- models: Table of all models (CSV).
+- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
+identifying the model, and columns to calculate statistics for.
+- output: Output plot (PDF).
+
+Examples:
+
+bin/plot_feedbacks_by_family input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
+```
