@@ -92,7 +92,6 @@ def plot(d, models, vars_, \
 				if models['family'][k] == family:
 					variants += models['variants'][k]
 			mask = np.array([m in variants for m in d['Model']])
-			print(family, list(d['Model'][mask]))
 			m = np.sum(mask)
 			x = i*n*1.1 + j
 			xticks += [x]
@@ -108,7 +107,7 @@ def plot(d, models, vars_, \
 	plt.yticks(np.arange(ylim[0], ylim[1] + 0.5, 0.5))
 	for i, var in enumerate(vars_):
 		plt.text(i*n*1.1 + 0.5*(n - 1), ylim[0] - 0.09*(ylim[1] - ylim[0]),
-			var, va='top', ha='center')
+			VARS.get(var, var), va='top', ha='center')
 	plt.gca().set_xticks(xticks)
 	plt.gca().set_xticklabels(xticklabels, fontsize=5.5)
 	plt.xlim(xticks[0] - 1, xticks[-1] + 1)
