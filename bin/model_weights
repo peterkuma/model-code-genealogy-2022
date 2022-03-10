@@ -34,6 +34,7 @@ def read_models(filename):
 	predecessor = list(f['Predecessor'])
 	institute = list(f['Institute'])
 	country = list(f['Country'])
+	family = list(f['Family'])
 	cmip3_names = list(f['CMIP3 names'])
 	cmip5_names = list(f['CMIP5 names'])
 	cmip6_names = list(f['CMIP6 names'])
@@ -71,6 +72,7 @@ def read_models(filename):
 		'variants': variants,
 		'institute': institute,
 		'country': country,
+		'family': family,
 	}
 
 def read_subset(filename):
