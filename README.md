@@ -95,15 +95,17 @@ Examples:
 bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks.pdf
 ```
 
-### plot\_feedbacks\_by\_family
+### plot\_feedbacks\_by\_group
 
 ```
-Plot bar plot with model feedbacks by model family.
+Plot bar plot with model feedbacks by model group (family or country).
 
-Usage: plot_feedbacks_by_family <models> <cmip5> <cmip6> <output>
+Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output>
 
 Arguments:
 
+- group: Group to show. One of: "family", "country".
+- sep: CMIP5 and CMIP6 separate or together. One of "separate", "together".
 - models: Table of all models (CSV).
 - cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
 identifying the model, and columns to calculate statistics for.
@@ -111,5 +113,8 @@ identifying the model, and columns to calculate statistics for.
 
 Examples:
 
-bin/plot_feedbacks_by_family input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
+bin/plot_feedbacks_by_group country separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_country.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_family.pdf
+bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_country.pdf
 ```

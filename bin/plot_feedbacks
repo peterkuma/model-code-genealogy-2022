@@ -27,13 +27,14 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy
 
-COLORS = ['#0084C8', '#DC0000', '#009100', '#FFC022']
+COLORS = ['#0084C8', '#DC0000', '#009100', '#FFC022', '#ba00ff']
 
 HATCH = [
 	'///',
 	'---',
 	'\\\\\\',
 	'...',
+	'|||',
 ]
 
 mpl.rc('font', family='Open Sans')
@@ -73,7 +74,7 @@ YLIM = [-130, 130]
 YLIM2 = [-0.1, 0.6]
 YLIM3 = [-120, 120]
 
-TYPES = ['variant', 'model', 'institute', 'country', 'code']
+TYPES = ['variant', 'model', 'institute', 'country', 'code', 'family']
 
 def get_weights(type_, models, subset):
 	weights = {}
