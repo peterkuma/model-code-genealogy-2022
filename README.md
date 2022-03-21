@@ -118,3 +118,22 @@ bin/plot_feedbacks_by_group country separate input/models.csv input/zelinka2021_
 bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_family.pdf
 bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_country.pdf
 ```
+
+### plot\_tas
+
+```sh
+Plot global mean near-surface air temperature.
+
+Usage: plot_tas <models> <tas> <hadcrut> <output>
+
+Arguments:
+
+- models: Table of models (CSV).
+- tas: Input directory with model tas (NetCDF).
+- hadcrut: Input HadCRUT file (NetCDF).
+- output: Output plot (PDF).
+
+Example:
+
+bin/plot_tas input/models.csv input/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas.pdf
+```
