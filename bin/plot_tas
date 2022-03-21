@@ -15,6 +15,9 @@ Example:
 bin/plot_tas input/models.csv input/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas.pdf
 '''
 
+TYPES = ['variant', 'family']
+LINESTYLES = ['dashed', 'dotted']
+
 import os
 from importlib.machinery import SourceFileLoader
 model_weights = SourceFileLoader('module.name',
@@ -42,6 +45,14 @@ mpl.rc('legend', fontsize=8)
 mpl.rc('grid', color='k')
 mpl.rc('grid', alpha=0.2)
 mpl.rc('grid', lw=0.1)
+
+def get_weights(type_, models, subset):
+	weights = {}
+	d = model_weights.model_weights(type_, models, subset)
+	for i, model in enumerate(d['model']):
+		if np.isfinite(d['weight'][i]):
+			weights[model] = d['weight'][i]
+	return weights
 
 def calc_ts(outtime, time, x):
 	year = aq.to_date(time)[1]
@@ -71,9 +82,11 @@ if __name__ == '__main__':
 	hadcrut = sys.argv[3]
 	output = sys.argv[4]
 
+	print('<- %s' % models_file)
 	models_table = model_weights.read_models(models_file)
-
+	print('<- %s' % input_)
 	dd = ds.readdir(input_, jd=True)
+	print('<- %s' % hadcrut)
 	d_hadcrut = ds.read(hadcrut, jd=True)
 
 	model_family = {}
@@ -82,62 +95,57 @@ if __name__ == '__main__':
 		for variant in models_table['variants'][i]:
 			model_family[variant] = models_table['family'][i]
 
-	families = []
 	for d in dd:
-		model = os.path.basename(d['filename'])[:-3]
-		family = model_family.get(model)
-		families += [family]
+		d['model'] = os.path.basename(d['filename'])[:-3]
+		d['family'] = model_family.get(d['model'])
 
-	families = sorted(set(families))
-	family_no = {}
-	for i, f in enumerate(families):
-		family_no[f] = i
+	family_set = sorted(set([model_family.get(d['model']) for d in dd]))
+	family_no = {f: i for i, f in enumerate(family_set)}
 
 	time = np.arange(1850, 2015)
 	m = len(time)
-	ts = {}
-	ts_all = []
-	k = {}
+	models = [d['model'] for d in dd]
+	tas = [calc_ts(time, d['time'], d['tas'][:,0,0]) for d in dd]
 
-	for d in dd:
-		model = os.path.basename(d['filename'])[:-3]
-		family = model_family.get(model)
-		ts1 = calc_ts(time, d['time'], d['tas'][:,0,0])
-		ts[family] = ts.get(family, []) + [ts1]
-		ts_all += [ts1]
+	tas_by_family = {}
+	for i, d in enumerate(dd):
+		tas_by_family[d['family']] = tas_by_family.get(d['family'], []) + \
+			[tas[i]]
 
-	ts_hadcrut = calc_ts(time, d_hadcrut['time'], d_hadcrut['tas_mean'])
+	tas_hadcrut = calc_ts(time, d_hadcrut['time'], d_hadcrut['tas_mean'])
 
-	ts_avg = [np.mean(ts[f], axis=0) for f in families]
-	ts_avg2 = np.mean(ts_avg, axis=0)
-	ts_model_avg = np.mean(ts_all, axis=0)
+	plt.figure(figsize=(6, 4))
 
 	cmap = plt.get_cmap('tab20')
-	for i, family in enumerate(families):
-		#for i in range(m):
-		#	ts[family][i] -= ts_avg[i]
-		avg = np.mean(ts[family], axis=0) #- ts_avg2
-		low = np.percentile(ts[family], 16, axis=0) #- ts_avg2
-		high = np.percentile(ts[family], 100-16, axis=0) #- ts_avg2
+	for i, family in enumerate(family_set):
+		tas_set = tas_by_family[family]
+		mean = np.mean(tas_set, axis=0)
+		low = np.percentile(tas_set, 16, axis=0)
+		high = np.percentile(tas_set, 100-16, axis=0)
 		color = cmap(family_no[family])
-		label = '%s (%d)' % (family, len(ts[family]))
-		plt.plot(time, avg, color=color, lw=1, label=label)
+		label = '%s (%d)' % (family, len(tas_set))
+		plt.plot(time, mean, color=color, lw=1, label=label)
 		plt.fill_between(time, low, high, color=color, edgecolor='none',
 			alpha=0.2)
-		plt.errorbar(time[-1] + i + 1, avg[-1],
-			avg[-1] - low[-1],
-			high[-1] - avg[-1],
-			color=color,
-			clip_on=False,
+		plt.errorbar(time[-1] + i + 1, mean[-1],
+			mean[-1] - low[-1], high[-1] - mean[-1],
+			color=color, clip_on=False,
 		)
-	plt.plot(time, ts_model_avg, color='k', lw=1, label='model mean')
-	plt.plot(time, ts_avg2, color='k', lw=1, label='family mean',
-		linestyle='dashed')
-	plt.plot(time, ts_hadcrut, color='k', lw=1, label='HadCRUT5',
-		linestyle='dotted')
+
+	for i, type_ in enumerate(TYPES):
+		weights = get_weights(type_, models_table, models)
+		tas_avg = np.average(tas, weights=[weights[m] for m in models], axis=0)
+		type2 = 'multi-model' if type_ == 'variant' else type_
+		plt.plot(time, tas_avg, color='k', lw=1, label='%s mean' % type2,
+			linestyle=LINESTYLES[i])
+
+	plt.plot(time, tas_hadcrut, color='k', lw=1, label='HadCRUT5')
+
 	plt.title('CMIP6')
 	plt.xlabel('Year')
 	plt.ylabel('Global mean near-surface air temperature anomaly (K)')
-	plt.xlim(time[0], time[-1] + len(families) + 1)
+	plt.xlim(time[0], time[-1] + len(family_set) + 1)
 	plt.legend(fontsize=7)
+
+	print('-> %s' % output)
 	plt.savefig(output, bbox_inches='tight')
