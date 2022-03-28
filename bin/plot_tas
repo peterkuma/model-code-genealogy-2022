@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Plot global mean near-surface air temperature.
 
-Usage: plot_tas <models> <tas> <hadcrut> <output>
+Usage: plot_tas <models> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
 
 Arguments:
 
@@ -9,14 +9,40 @@ Arguments:
 - tas: Input directory with model tas (NetCDF).
 - hadcrut: Input HadCRUT file (NetCDF).
 - output: Output plot (PDF).
+- y1: Start year.
+- y2: End year.
+- title: Plot title.
+
+Options:
+
+- divider: Year to plot vertical divider on.
 
 Example:
 
-bin/plot_tas input/models.csv input/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas.pdf
+bin/plot_tas input/models.csv input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
+bin/plot_tas input/models.csv input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015
+bin/plot_tas input/models.csv input/cmip6/abrupt-4xCO2/tas none plot/tas_cmip6_abrupt-4xCO2.pdf 1850 1999 'CMIP6 abrupt-4xCO2'
+bin/plot_tas input/models.csv input/cmip6/1pctCO2/tas none plot/tas_cmip6_1pctCO2.pdf 1850 1999 'CMIP6 1pctCO2'
+bin/plot_tas input/models.csv input/cmip5/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical.pdf 1850 2005 'CMIP5 historical'
 '''
 
 TYPES = ['variant', 'family']
 LINESTYLES = ['dashed', 'dotted']
+MARKERS = ['o', 's', 'p', 'D', 'P', 'X', '^', '>', 'v', '<', '*']
+
+FAMILY_ORDER = [
+	'CCM',
+	'CanAM',
+	'GFDL',
+	'GFS',
+	'HadCM',
+	'IFS/ARPEGE',
+	'INM',
+	'LMDZ',
+	'MIROC',
+	'UA MCM',
+	'UCLA',
+]
 
 import os
 from importlib.machinery import SourceFileLoader
@@ -26,10 +52,12 @@ model_weights = SourceFileLoader('module.name',
 import sys
 import ds_format as ds
 import aquarius_time as aq
+import pst
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import numpy as np
 import scipy.stats
+import matplotlib.lines as mlines
 
 mpl.rc('font', family='Open Sans')
 mpl.rc('axes', linewidth=0.3)
@@ -48,17 +76,25 @@ mpl.rc('grid', lw=0.1)
 
 def get_weights(type_, models, subset):
 	weights = {}
+	subset2 = []
+	for s in subset:
+		subset2 += [s]
+	subset = subset2
 	d = model_weights.model_weights(type_, models, subset)
 	for i, model in enumerate(d['model']):
 		if np.isfinite(d['weight'][i]):
 			weights[model] = d['weight'][i]
 	return weights
 
-def calc_ts(outtime, time, x):
+def calc_ts(outtime, time, x, normalize=None, sd=10):
+	m = len(outtime)
 	year = aq.to_date(time)[1]
+	years = set(year)
+	ymin = year[0]
+	ymax = year[-1]
 	time1 = []
 	ts1 = []
-	for y in sorted(set(year)):
+	for y in sorted(years):
 		time1 += [y]
 		mask = year == y
 		ts1 += [np.mean(x[mask])]
@@ -66,28 +102,40 @@ def calc_ts(outtime, time, x):
 	ts1 = np.array(ts1)
 	n = len(ts1)
 	ts2 = np.full(m, np.nan, np.float64)
-	for i in range(m):
-		w = scipy.stats.norm.pdf(time1, outtime[i], 15)
+	for i, y in enumerate(outtime):
+		w = scipy.stats.norm.pdf(time1, outtime[i], sd)
 		w /= np.sum(w)
-		ts2[i] = np.sum(ts1*w)
-	ts2 -= np.mean(ts2[:50])
+		ts2[i] = np.sum(ts1*w) if (y >= (ymin + 2*sd) and y <= (ymax - 2*sd)) \
+			else np.nan
+	if normalize is not None:
+		ts2 -= np.nanmean(ts2[2*sd:(normalize+2*sd)])
 	return ts2
 
 if __name__ == '__main__':
-	if len(sys.argv) != 5:
+	args, opts = pst.decode_argv(sys.argv, as_unicode=True)
+	if len(args) != 8:
 		sys.stderr.write(sys.modules[__name__].__doc__)
 		sys.exit(1)
-	models_file = sys.argv[1]
-	input_ = sys.argv[2]
-	hadcrut = sys.argv[3]
-	output = sys.argv[4]
+	models_file = args[1]
+	input_ = args[2]
+	hadcrut = args[3]
+	output = args[4]
+	y1 = args[5]
+	y2 = args[6]
+	title = args[7]
+	divider = opts.get('divider')
 
 	print('<- %s' % models_file)
 	models_table = model_weights.read_models(models_file)
 	print('<- %s' % input_)
 	dd = ds.readdir(input_, jd=True)
-	print('<- %s' % hadcrut)
-	d_hadcrut = ds.read(hadcrut, jd=True)
+	if hadcrut is not None:
+		print('<- %s' % hadcrut)
+		d_hadcrut = ds.read(hadcrut, jd=True)
+	else:
+		d_hadcrut = None
+
+	sd = 10
 
 	model_family = {}
 	n = len(models_table['model'])
@@ -97,55 +145,92 @@ if __name__ == '__main__':
 
 	for d in dd:
 		d['model'] = os.path.basename(d['filename'])[:-3]
-		d['family'] = model_family.get(d['model'])
+		d['family'] = model_family[d['model']]
 
-	family_set = sorted(set([model_family.get(d['model']) for d in dd]))
-	family_no = {f: i for i, f in enumerate(family_set)}
+	family_set = sorted(set([model_family[d['model']] for d in dd]))
 
-	time = np.arange(1850, 2015)
+	time = np.arange(y1, y2 + 1)
 	m = len(time)
 	models = [d['model'] for d in dd]
-	tas = [calc_ts(time, d['time'], d['tas'][:,0,0]) for d in dd]
+	normalize = 50 if d_hadcrut is not None else 1
+	tas = np.stack([calc_ts(time, d['time'], d['tas'][:,0,0], normalize, sd) \
+		for d in dd])
+
+	for i, tas1 in enumerate(tas):
+		if np.any(np.isnan(tas1[2*sd:-2*sd])):
+			tas1[::] = np.nan
 
 	tas_by_family = {}
 	for i, d in enumerate(dd):
 		tas_by_family[d['family']] = tas_by_family.get(d['family'], []) + \
 			[tas[i]]
+	tas_by_family = {k: np.stack(v) for k, v in tas_by_family.items()}
 
-	tas_hadcrut = calc_ts(time, d_hadcrut['time'], d_hadcrut['tas_mean'])
+	if d_hadcrut is not None:
+		tas_hadcrut = calc_ts(time, d_hadcrut['time'], d_hadcrut['tas_mean'], 50, sd)
 
 	plt.figure(figsize=(6, 4))
 
 	cmap = plt.get_cmap('tab20')
+	labels = []
+	colors = []
+	markers = []
 	for i, family in enumerate(family_set):
-		tas_set = tas_by_family[family]
-		mean = np.mean(tas_set, axis=0)
-		low = np.percentile(tas_set, 16, axis=0)
-		high = np.percentile(tas_set, 100-16, axis=0)
-		color = cmap(family_no[family])
-		label = '%s (%d)' % (family, len(tas_set))
-		plt.plot(time, mean, color=color, lw=1, label=label)
-		plt.fill_between(time, low, high, color=color, edgecolor='none',
+		tas_set = tas_by_family[family][:,sd*2:-sd*2]
+		timex = time[sd*2:-sd*2]
+		u = np.sum(np.isfinite(tas_set[:,-1]))
+		if u == 0:
+			continue
+		mean = np.nanmean(tas_set, axis=0)
+		low = np.nanpercentile(tas_set, 16, axis=0)
+		high = np.nanpercentile(tas_set, 100-16, axis=0)
+		color = cmap(FAMILY_ORDER.index(family))
+		label = '%s (%d)' % (family, u)
+		marker = MARKERS[FAMILY_ORDER.index(family)]
+		labels += [label]
+		colors += [color]
+		markers += [marker]
+		plt.plot(timex, mean, color=color, lw=1, label=label)
+		plt.scatter(timex[::20], mean[::20], marker=marker, s=12,
+			color=color, zorder=100)
+		plt.fill_between(timex, low, high, color=color, edgecolor='none',
 			alpha=0.2)
-		plt.errorbar(time[-1] + i + 1, mean[-1],
-			mean[-1] - low[-1], high[-1] - mean[-1],
-			color=color, clip_on=False,
-		)
+		if u > 1:
+			plt.plot(
+				[timex[-1] + i + 1, timex[-1] + i + 1],
+				[low[-1], high[-1]],
+				color=color
+			)
+		plt.scatter(timex[-1] + i + 1, mean[-1], color=color, s=12,
+			marker=marker)
 
 	for i, type_ in enumerate(TYPES):
 		weights = get_weights(type_, models_table, models)
-		tas_avg = np.average(tas, weights=[weights[m] for m in models], axis=0)
+		w = [weights[x] for x in models]
+		tas_avg = np.full(m, np.nan, np.float64)
+		for j in range(m):
+			wsum = np.sum(w*np.isfinite(tas[:,j]))
+			tas_avg[j] = np.nansum(tas[:,j]*w)/wsum
 		type2 = 'multi-model' if type_ == 'variant' else type_
-		plt.plot(time, tas_avg, color='k', lw=1, label='%s mean' % type2,
-			linestyle=LINESTYLES[i])
+		if divider is not None:
+			plt.axvline(divider, color='k', lw=0.5)
+		plt.plot(time[2*sd:-2*sd], tas_avg[2*sd:-2*sd], color='k', lw=1,
+			label='%s mean' % type2, linestyle=LINESTYLES[i])
 
-	plt.plot(time, tas_hadcrut, color='k', lw=1, label='HadCRUT5')
+	if d_hadcrut is not None:
+		plt.plot(time[2*sd:-2*sd], tas_hadcrut[2*sd:-2*sd], color='k', lw=1,
+			label='HadCRUT5')
 
-	plt.title('CMIP6')
+	plt.title(title)
 	plt.xlabel('Year')
 	plt.ylabel('Global mean near-surface air temperature anomaly (K)')
-	plt.xlim(time[0], time[-1] + len(family_set) + 1)
-	plt.legend(fontsize=7)
+	plt.xlim(time[2*sd], time[-2*sd] + len(family_set) + 1)
+
+	plt.legend(handles=[
+		mlines.Line2D([], [], color=colors[i], marker=markers[i],
+			markersize=3.5, label=labels[i])
+		for i in range(len(colors))
+	], fontsize=7)
 
 	print('-> %s' % output)
 	plt.savefig(output, bbox_inches='tight')

@@ -124,7 +124,7 @@ bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6
 ```sh
 Plot global mean near-surface air temperature.
 
-Usage: plot_tas <models> <tas> <hadcrut> <output>
+Usage: plot_tas <models> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
 
 Arguments:
 
@@ -132,8 +132,19 @@ Arguments:
 - tas: Input directory with model tas (NetCDF).
 - hadcrut: Input HadCRUT file (NetCDF).
 - output: Output plot (PDF).
+- y1: Start year.
+- y2: End year.
+- title: Plot title.
+
+Options:
+
+- divider: Year to plot vertical divider on.
 
 Example:
 
-bin/plot_tas input/models.csv input/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas.pdf
+bin/plot_tas input/models.csv input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
+bin/plot_tas input/models.csv input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015
+bin/plot_tas input/models.csv input/cmip6/abrupt-4xCO2/tas none plot/tas_cmip6_abrupt-4xCO2.pdf 1850 1999 'CMIP6 abrupt-4xCO2'
+bin/plot_tas input/models.csv input/cmip6/1pctCO2/tas none plot/tas_cmip6_1pctCO2.pdf 1850 1999 'CMIP6 1pctCO2'
+bin/plot_tas input/models.csv input/cmip5/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical.pdf 1850 2005 'CMIP5 historical'
 ```
