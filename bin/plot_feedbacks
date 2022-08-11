@@ -12,7 +12,7 @@ identifying the model, and columns to calculate statistics for.
 
 Examples:
 
-bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks.pdf
+bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks.pdf
 '''
 
 import os

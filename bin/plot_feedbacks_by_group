@@ -18,12 +18,9 @@ identifying the model, and columns to calculate statistics for.
 
 Examples:
 
-bin/plot_feedbacks_by_group family separate input/models.csv data/feedbacks_cmip{5,6}.csv plot/feedbacks_by_family_merged.pdf
-
-bin/plot_feedbacks_by_group family separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
-bin/plot_feedbacks_by_group country separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_country.pdf
-bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_family.pdf
-bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_country.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc data/feedbacks_by_family_cmip{5,6}_bayes.nc
 '''
 
 import os

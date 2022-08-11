@@ -8,6 +8,11 @@ Arguments:
 
 - input: Input file. The output of plot_feedbacks_by_group (NetCDF).
 - output: Output file (NetCDF).
+
+Examples:
+
+bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_bayes.nc
+bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
 '''
 
 import sys
