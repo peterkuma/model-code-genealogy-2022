@@ -78,7 +78,7 @@ Usage: model_weights <type> <models> [<subset>]
 
 Arguments:
 
-- type: Type of "democracy". One of: "variant", "model", "institution", "country", "code".
+- type: Type of "democracy". One of: "variant", "model", "institution", "country", "code", "family".
 - models: Table of all models (CSV).
 - subset: List of models to calculate weights for (CSV).
 
@@ -130,7 +130,7 @@ identifying the model, and columns to calculate statistics for.
 
 Examples:
 
-bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks.pdf
+bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks.pdf
 ```
 
 ### plot\_feedbacks\_by\_group
@@ -138,7 +138,7 @@ bin/plot_feedbacks input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feed
 ```
 Plot bar plot with model feedbacks by model group (family or country).
 
-Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output>
+Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output> [<output_cmip5> <output_cmip6> [<bayes_cmip5> <bayes_cmip6 ]]
 
 Arguments:
 
@@ -148,13 +148,34 @@ Arguments:
 - cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
 identifying the model, and columns to calculate statistics for.
 - output: Output plot (PDF).
+- output_cmip5: CMIP5 plot data output (NetCDF).
+- output_cmip6: CMIP6 plot data output (NetCDF).
+- bayes_cmip5: CMIP5 Bayes test input (NetCDF).
+- bayes_cmip6: CMIP5 Bayes test input (NetCDF).
 
 Examples:
 
-bin/plot_feedbacks_by_group family separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
-bin/plot_feedbacks_by_group country separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_country.pdf
-bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_family.pdf
-bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_country.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc
+bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc data/feedbacks_by_family_cmip{5,6}_bayes.nc
+```
+
+### calc\_bayes
+
+```sh
+Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
+
+Usage: calc_bayes <input> <output>
+
+Arguments:
+
+- input: Input file. The output of plot_feedbacks_by_group (NetCDF).
+- output: Output file (NetCDF).
+
+Examples:
+
+bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_bayes.nc
+bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
 ```
 
 ### plot\_tas
@@ -162,12 +183,13 @@ bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6
 ```sh
 Plot global mean near-surface air temperature.
 
-Usage: plot_tas <models> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
+Usage: plot_tas <models> <control> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
 
 Arguments:
 
 - models: Table of models (CSV).
-- tas: Input directory with model tas (NetCDF).
+- control: Input directory with model tas - piControl or none (NetCDF).
+- tas: Input directory with model tas - experiment (NetCDF).
 - hadcrut: Input HadCRUT file (NetCDF).
 - output: Output plot (PDF).
 - y1: Start year.
@@ -180,9 +202,12 @@ Options:
 
 Example:
 
-bin/plot_tas input/models.csv input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
-bin/plot_tas input/models.csv input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015
-bin/plot_tas input/models.csv input/cmip6/abrupt-4xCO2/tas none plot/tas_cmip6_abrupt-4xCO2.pdf 1850 1999 'CMIP6 abrupt-4xCO2'
-bin/plot_tas input/models.csv input/cmip6/1pctCO2/tas none plot/tas_cmip6_1pctCO2.pdf 1850 1999 'CMIP6 1pctCO2'
-bin/plot_tas input/models.csv input/cmip5/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical.pdf 1850 2005 'CMIP5 historical'
+bin/plot_tas input/models.csv none input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
+bin/plot_tas input/models.csv none input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015
+bin/plot_tas input/models.csv input/cmip6/{piControl,abrupt-4xCO2}/tas none plot/tas_cmip6_abrupt-4xCO2.pdf 1 150 'CMIP6 abrupt-4xCO2'
+bin/plot_tas input/models.csv input/cmip6/{piControl,1pctCO2}/tas none plot/tas_cmip6_1pctCO2.pdf 1 150 'CMIP6 1pctCO2'
+bin/plot_tas input/models.csv none input/cmip5/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical.pdf 1850 2005 'CMIP5 historical'
+bin/plot_tas input/models.csv none input/cmip5/historical+rcp45/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical+rcp45.pdf 1850 2099 'CMIP5 historical + RCP4.5' divider: 2006
+bin/plot_tas input/models.csv input/cmip5/{piControl,abrupt-4xCO2}/tas none plot/tas_cmip5_abrupt-4xCO2.pdf 1 140 'CMIP5 abrupt-4xCO2'
+bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_cmip5_1pctCO2.pdf 1 140 'CMIP5 1pctCO2'
 ```
