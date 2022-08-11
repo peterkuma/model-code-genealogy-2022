@@ -21,6 +21,7 @@ model_weights = SourceFileLoader('module.name',
 	os.path.join(os.path.dirname(__file__), 'model_weights')).load_module()
 
 import sys
+import string
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -53,26 +54,50 @@ mpl.rc('grid', alpha=0.2)
 mpl.rc('grid', lw=0.1)
 
 VARS = {
-	'PL_hs': 'Planck',
-	'LR_hs': 'LR',
-	'RH': 'RH',
+	'PL': 'Planck',
+	'WV': 'WV',
+	'LR': 'LR',
+	'WV+LR': 'WV+LR',
 	'ALB': 'Albedo',
 	'CLD': 'Cloud',
-	'CLD_SW': 'Cloud$_{SW}$',
-	'CLD_LW': 'Cloud$_{LW}$',
+	'CLD_SW': 'Cloud$_\mathrm{SW}$',
+	'CLD_LW': 'Cloud$_\mathrm{LW}$',
 	'NET': 'Net',
 	'ERR': 'Residual',
 }
 VARS2 = {'ECS': 'ECS'}
-VARS3 = {'ERF_2x': 'ERF$_{2x}$'}
+VARS3 = {
+	'ERF_2x': 'ERF$_{2x}$',
+	'TCR': 'TCR',
+}
 
 YLABEL = 'Feedback difference (mWm$^{-2}K^{-1}$)'
 YLABEL2 = 'ECS difference (K)'
-YLABEL3 = 'ERF$_{2x}$ difference (mWm$^{-2}$)'
+YLABEL3 = {
+	 'ERF_2x': 'ERF$_{2x}$ difference (mWm$^{-2}$)',
+	 'TCR': 'TCR difference (K)',
+}
 
-YLIM = [-130, 130]
-YLIM2 = [-0.1, 0.6]
-YLIM3 = [-120, 120]
+YLIM = [-150, 100]
+YLIM2 = [-0.3, 0.2]
+YLIM3 = {
+	'ERF_2x': [-65, 70],
+	'TCR': [-0.05, 0.05],
+}
+
+YLIMD = [-120, 150]
+YLIMD2 = [0, 0.55]
+YLIMD3 = {
+	'ERF_2x': [0, 260],
+	'TCR': [-0.05, 0.05],
+}
+
+SCALE = 1000
+SCALE2 = 1
+SCALE3 = {
+	'ERF_2x': 1000,
+	'TCR': 1,
+}
 
 TYPES = ['variant', 'model', 'institute', 'country', 'code', 'family']
 
@@ -84,52 +109,115 @@ def get_weights(type_, models, subset):
 			weights[model] = d['weight'][i]
 	return weights
 
-def plot(d, d1, d2, models_table, vars_, \
-	ylim=None, legend=True, scale=1, ylabel=None):
+def calc_stats(d, vars_, models_table):
 	out = {}
+	varsx = [x for x in vars_.keys() if x in d.keys()]
 	for type_ in TYPES:
-		for var in vars_.keys():
+		for var in varsx:
 			models = []
+			values = []
 			for i, model in enumerate(d['Model']):
 				if np.isfinite(d[var][i]):
 					models += [model]
+					values += [d[var][i]]
 			if len(models) > 0:
 				weights = get_weights(type_, models_table, models)
 				w = np.array([weights.get(model, np.nan) for model in models])
 				mask = np.isfinite(w)
-				values = np.array(d[var])
-				out['%s_%s' % (var, type_)] = np.average(values[mask], weights=w[mask])
+				values = np.array(values)
+				out['%s_%s' % (var, type_)] = np.average(values[mask], \
+					weights=w[mask])
+			else:
+				out['%s_%s' % (var, type_)] = 0
+	return out
 
-	n = len(TYPES)
-	m = len(vars_.keys())
+def plot(d, s, d1, d2, s1, s2, vars_, \
+	diff=False, ylim=None, legend=True, scale=1, ylabel=None):
+
+	varsx = [x for x in vars_.keys() if x in d.keys()]
+	m = len(varsx)
 	x = np.arange(m)
-	plt.bar(x, [
-			scale*(np.mean(d2[var]) - np.mean(d1[var])) \
-			for var in vars_.keys()
-		],
-		width=0.7/n,
-		label='CMIP6 - CMIP5',
-		color='k',
-	)
-	for i, type_ in enumerate(TYPES[1:]):
-		x = np.arange(m) + (i+1)/n*0.7
-		plt.bar(x, [
-				scale*(out['%s_%s' % (var, type_)] - out['%s_variant' % var]) \
-				for var in vars_.keys()
-			],
+	if diff:
+		n = 2
+		varsxx = [var for var in varsx if var not in ('NET', 'ERR', 'CLD')]
+		rmsd1 = np.sqrt(np.mean(np.array([(np.mean(d2[var]) - np.mean(d1[var])) for var in varsxx])**2))
+		y = [
+			(scale[var] if type(scale) is dict else scale)* \
+			(np.mean(d2[var]) - np.mean(d1[var])) \
+			for var in varsx
+		]
+		plt.bar(x, y,
 			width=0.7/n,
-			label=type_.capitalize(),
-			color=COLORS[i],
-			hatch=HATCH[i],
-			alpha=0.999,
+			label='Simple mean [RMSD = %.0f]' % (rmsd1*1e3),
+			color='k',
 		)
-	plt.gca().set_xticks(np.arange(m) + 0.5*(n-1)/n*0.7)
-	plt.gca().set_xticklabels(vars_.values())
+		for j in range(len(x)):
+			plt.text(x[j], 0, '%.2f' % y[j],
+				fontsize=4,
+				ha='center',
+				color='red',
+			)
+		rmsd2 = np.sqrt(np.mean(np.array([(s2['%s_country' % var] - s1['%s_country' % var]) for var in varsxx])**2))
+		y = [
+			(scale[var] if type(scale) is dict else scale)* \
+			(s2['%s_code' % var] - s1['%s_code' % var]) \
+			for var in varsx
+		]
+		plt.bar(x + 0.7/n, y,
+			width=0.7/n,
+			label='Code [RMSD = %.0f]' % (rmsd2*1e3),
+			color='grey',
+		)
+		for j in range(len(x)):
+			plt.text(x[j] + 0.7/n, 0, '%.2f' % y[j],
+				fontsize=4,
+				ha='center',
+				color='red',
+			)
+	else:
+		n = len(TYPES) - 1
+		for i, type_ in enumerate(TYPES[1:]):
+			x = np.arange(m) + i*0.7/n
+			y = [
+				(scale[var] if type(scale) is dict else scale)* \
+				(s['%s_%s' % (var, type_)] - s['%s_variant' % var]) \
+				for var in varsx
+			]
+			plt.bar(x, y,
+				width=0.7/n,
+				label=type_.capitalize(),
+				color=COLORS[i],
+				hatch=HATCH[i],
+				alpha=0.999,
+			)
+			for j in range(len(x)):
+				plt.text(x[j], 0, '%.0f' % y[j],
+					fontsize=3,
+					ha='center',
+				)
+	plt.gca().set_xticks(np.arange(m) + 0.7/2*(n - 1)/n)
+	if diff:
+		plt.gca().set_xticklabels([vars_[k] for k in varsx])
+	else:
+		plt.gca().set_xticklabels([
+			('%s\n%.0f' if k != 'ECS' else '%s\n%.2f') % ( \
+				vars_[k], \
+				(scale[k] if type(scale) is dict else scale)* \
+				np.mean(d[k])) \
+			for k in varsx])
 	plt.axhline(0, color='k', lw=0.5)
+	if type(ylabel) is dict:
+		ylabel = ylabel[varsx[0]] if len(varsx) > 0 else ''
 	plt.ylabel(ylabel)
+	if type(ylim) is dict:
+		ylim = ylim[varsx[0]] if len(varsx) > 0 else [0, 0]
 	plt.ylim(ylim)
 	if legend:
 		plt.legend(loc='upper left')
+
+def plot_letter(i):
+	plt.text(0, 1.04, '(%s)' % string.ascii_lowercase[i],
+		transform=plt.gca().transAxes, weight='bold')
 
 if __name__ == '__main__':
 	if len(sys.argv) != 5:
@@ -145,20 +233,43 @@ if __name__ == '__main__':
 	d1 = pd.read_csv(cmip5)
 	d2 = pd.read_csv(cmip6)
 
-	fig = plt.figure(figsize=(12, 8))
-	gs = mpl.gridspec.GridSpec(2, 3, width_ratios=[0.9, 0.1, 0.1], wspace=0.3)
+	vars_all = {**VARS, **VARS2, **VARS3}
+	s1 = calc_stats(d1, vars_all, models_table)
+	s2 = calc_stats(d2, vars_all, models_table)
+
+	fig = plt.figure(figsize=(12, 12))
+	gs = mpl.gridspec.GridSpec(3, 3, width_ratios=[0.9, 0.1, 0.1], \
+		wspace=0.3, hspace=0.3)
 	fig.add_subplot(gs[0])
 	plt.title('CMIP6')
-	plot(d2, d1, d2, models_table, VARS, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	plot_letter(0)
+	plot(d2, s2, d1, d2, s1, s2, VARS, ylim=YLIM, scale=SCALE, ylabel=YLABEL)
 	fig.add_subplot(gs[1])
-	plot(d2, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	plot(d2, s2, d1, d2, s1, s2, VARS2, legend=False, ylim=YLIM2, scale=SCALE2,
+		ylabel=YLABEL2)
 	fig.add_subplot(gs[2])
-	plot(d2, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
+	plot(d2, s2, d1, d2, s1, s2, VARS3, legend=False, ylim=YLIM3, scale=SCALE3,
+		ylabel=YLABEL3)
 	fig.add_subplot(gs[3])
 	plt.title('CMIP5')
-	plot(d1, d1, d2, models_table, VARS, legend=False, ylim=YLIM, scale=1000, ylabel=YLABEL)
+	plot_letter(1)
+	plot(d1, s1, d1, d2, s1, s2, VARS, legend=False, ylim=YLIM, scale=SCALE,
+		ylabel=YLABEL)
 	fig.add_subplot(gs[4])
-	plot(d1, d1, d2, models_table, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2)
+	plot(d1, s1, d1, d2, s1, s2, VARS2, legend=False, ylim=YLIM2, scale=SCALE2,
+		ylabel=YLABEL2)
 	fig.add_subplot(gs[5])
-	plot(d1, d1, d2, models_table, VARS3, legend=False, ylim=YLIM3, scale=1000, ylabel=YLABEL3)
+	plot(d1, s1, d1, d2, s1, s2, VARS3, legend=False, ylim=YLIM3, scale=SCALE3,
+		ylabel=YLABEL3)
+	fig.add_subplot(gs[6])
+	plt.title('CMIP6 - CMIP5')
+	plot_letter(2)
+	plot(d1, s1, d1, d2, s1, s2, VARS, diff=True, legend=True, ylim=YLIMD,
+		scale=SCALE, ylabel=YLABEL)
+	fig.add_subplot(gs[7])
+	plot(d1, s1, d1, d2, s1, s2, VARS2, diff=True, legend=False, ylim=YLIMD2,
+		scale=SCALE2, ylabel=YLABEL2)
+	fig.add_subplot(gs[8])
+	plot(d1, s1, d1, d2, s1, s2, VARS3, diff=True, legend=False, ylim=YLIMD3,
+		scale=SCALE3, ylabel=YLABEL3)
 	plt.savefig(output, bbox_inches='tight')
