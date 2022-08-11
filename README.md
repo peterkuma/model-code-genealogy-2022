@@ -26,6 +26,17 @@ Input files are stored in the `input` directory.
 - `ar6_cmip6.csv`: CMIP6 models table from IPCC AR6.
 - `zelinka2021_table_S1.csv`: Table S1 from Zelinka et al. (2021).
 - `zelinka2021_table_S2.csv`: Table S2 from Zelinka et al. (2021).
+- `cmip5.tar.xz`: CMIP5 temperature data.
+- `cmip6.tar.xz`: CMIP6 temperature data.
+- `CMIP5_ECS_ERF_fbks.csv`: CMIP5 feedback, forcing and ECS data from [1].
+- `CMIP5_ECS_ERF_fbks.txt`: The same as the above but in the original format.
+- `CMIP6_ECS_ERF_fbks.csv`: CMIP6 feedback, forcing and ECS data from [1].
+- `CMIP6_ECS_ERF_fbks.txt`: The same as the above but in the original format.
+
+\[1\]: https://github.com/mzelinka/cmip56_forcing_feedback_ecs
+
+Before using the scripts, the input files need to be prepared by unpacking
+the archives `cmip5.tar.xz` and `cmip6.tar.xz`.
 
 ## Programs
 
