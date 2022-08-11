@@ -1,0 +1,5 @@
+numpy==1.22.1
+scipy==1.7.3
+pandas==1.4.3
+pymc3==3.11.5
+ds-format==2.0.0

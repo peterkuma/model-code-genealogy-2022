@@ -1,9 +1,12 @@
 # Model code genealogy
 
-This repository contains code to calculate climate model averaging weights
+This repository contains code to accompanying the manuscript "Climate model
+code genealogy and its relation to climate feedbacks and sensitivity".
+
+The code contains programs for calculating climate model averaging weights
 based on multiple choices of model "democracy":
 
-- `variant`: All model variants are equal.
+- `variant`: All model runs (here also called "variants") are equal.
 - `model`: All models are equal.
 - `institute`: All institutes are equal.
 - `country`: All countries are equal.
@@ -11,9 +14,33 @@ based on multiple choices of model "democracy":
 
 ## Requirements
 
-- Python 3
-- numpy
-- pandas
+The programs are to be run on Linux or another unix-like operating system in
+the Bash shell.
+
+System requirements:
+
+- Python 3.9
+- NetCDF4 (tested with 4.7.4)
+
+On Debian-based Linux distributions, these can be installed with:
+
+```sh
+apt install python3 libnetcdf-dev
+```
+
+Required Python packages:
+
+- numpy 1.22.1
+- scipy 1.7.3
+- pandas 1.4.3
+- pymc3 3.11.5
+- ds-format 2.0.0
+
+The Python packages can be installed with
+
+```sh
+pip3 install -r requirements.txt
+```
 
 ## Input files
 
