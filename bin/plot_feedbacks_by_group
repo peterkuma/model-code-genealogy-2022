@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks by model group (family or country).
 
-Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output>
+Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output> [<output_cmip5> <output_cmip6> [<bayes_cmip5> <bayes_cmip6 ]]
 
 Arguments:
 
@@ -11,13 +11,19 @@ Arguments:
 - cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
 identifying the model, and columns to calculate statistics for.
 - output: Output plot (PDF).
+- output_cmip5: CMIP5 plot data output (NetCDF).
+- output_cmip6: CMIP6 plot data output (NetCDF).
+- bayes_cmip5: CMIP5 Bayes test input (NetCDF).
+- bayes_cmip6: CMIP5 Bayes test input (NetCDF).
 
 Examples:
 
+bin/plot_feedbacks_by_group family separate input/models.csv data/feedbacks_cmip{5,6}.csv plot/feedbacks_by_family_merged.pdf
+
 bin/plot_feedbacks_by_group family separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_family.pdf
 bin/plot_feedbacks_by_group country separate input/models.csv input/zelinka2021_table_S{2,1}.csv plot/feedbacks_by_country.pdf
-bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip5.csv plot/feedbacks_ar6_by_family.pdf
-bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip5.csv plot/feedbacks_ar6_by_country.pdf
+bin/plot_feedbacks_by_group family separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_family.pdf
+bin/plot_feedbacks_by_group country separate input/models.csv input/ar6_cmip{5,6}.csv plot/feedbacks_ar6_by_country.pdf
 '''
 
 import os
@@ -26,12 +32,13 @@ model_weights = SourceFileLoader('module.name',
 	os.path.join(os.path.dirname(__file__), 'model_weights')).load_module()
 
 import sys
+import scipy
+import string
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import scipy
-import string
+import ds_format as ds
 
 mpl.rc('font', family='Open Sans', size=8)
 mpl.rc('axes', linewidth=0.3)
@@ -48,48 +55,65 @@ mpl.rc('grid', color='k')
 mpl.rc('grid', alpha=0.2)
 mpl.rc('grid', lw=0.1)
 
+SYMBOLS = ['o', 's', 'v', '^', '<', '>', '*', 'h', 'D', 'X', 'P', 'p', 'x']
+
 VARS = {
-	'PL_hs': 'Planck',
-	'Planck': 'Planck',
-	'LR_hs': 'LR',
-	'RH': 'RH',
-	'Water vapour + lapse rate': 'RH+LR',
-	'ALB': 'Albedo',
-	'Surface albedo': 'Albedo',
+	'PL': 'Planck',
+	'LR': 'Lapse rate',
+	'WV+LR': 'WV+LR',
+	'WV': 'Water vapour',
+	'ALB': 'Surface albedo',
 	'CLD': 'Cloud',
-	'Cloud': 'Cloud',
-	'CLD_SW': 'Cloud$_{SW}$',
-	'CLD_LW': 'Cloud$_{LW}$',
+	'CLD_SW': 'Cloud$_\\mathrm{SW}$',
+	'CLD_LW': 'Cloud$_\\mathrm{LW}$',
 	'NET': 'Net',
-	'Net feedback': 'Net',
 	'ERR': 'Residual',
-	'Residual': 'Residual',
 }
 VARS2 = {
-	'ECS': 'ECS'
-}
-VARS3 = {
+	'ECS': 'ECS',
 	'ERF_2x': 'ERF$_{2x}$',
 	'TCR': 'TCR',
 }
 
+META = {}
+for var in list(VARS.keys()) + list(VARS2.keys()):
+	META[var] = {
+		'.dims': ['%s_model' % var]
+	}
+	META['%s_model' % var] = {
+		'.dims': ['%s_model' % var]
+	}
+
 YLABEL = 'Feedback (Wm$^{-2}K^{-1}$)'
-YLABEL2 = 'ECS (K)'
-YLABEL3 = {
+YLABEL2 = {
+	'ECS': 'ECS (K)',
 	'ERF_2x': 'ERF$_{2x}$ (Wm$^{-2}$)',
 	'TCR': 'TCR (K)',
 }
 
-YLIM = [-2, 2]
-YLIM2 = [1.5, 6]
-YLIM3 = {
-	'ERF_2x': [2.5, 4.5],
-	'TCR': [0, 4],
-}
+YLIM = [-3.5, 2.5]
+YLIM2 = [1, 7]
+
+FAMILY_ORDER = [
+	'CCM',
+	'CanAM',
+	'CSIRO',
+	'GFDL',
+	'GFS',
+	'HadCM',
+	'IFS/ARPEGE',
+	'INM',
+	'LMDZ',
+	'MIROC',
+	'UA MCM',
+	'UCLA',
+]
 
 def plot(group, d, models, vars_, \
-	ylim=None, legend=True, ylabel=None, group_no=None, show_hline=False):
+	ylim=None, legend=True, legend_pos='upper left', ylabel=None,
+	group_no=None, show_hline=False, bayes=None):
 
+	dout = {}
 	groups = list(set(models[group]))
 	n = len(groups)
 	groups2 = []
@@ -109,67 +133,99 @@ def plot(group, d, models, vars_, \
 	xticklabels = []
 	cmap = plt.get_cmap('tab20')
 	i = 0
+	handles = []
 	for var in vars_:
 		if var not in d.keys():
 			continue
 		gmean = 0
+		nx = 0
+		xticks += [i*n*1.1 + 0.5*(n - 1)]
+		xticklabels += [vars_[var]]
 		for j, g in enumerate(groups):
 			variants = []
 			for k in range(len(models[group])):
 				if models[group][k] == g:
 					variants += models['variants'][k]
 			mask = np.array([m in variants for m in d['Model']])
-			m = np.sum(mask)
-			x = i*n*1.05 + j
-			xticks += [x]
-			xticklabels += [group_no[g]]
-			label = '%s [%d]' % (g, group_no[g]) if i == 0 else None
-			plt.scatter([x]*m, d[var][mask],
-				s=16,
+			mask2 = np.copy(mask)
+			mask2[mask] &= np.isfinite(d[var][mask])
+			mask3 = np.copy(mask)
+			mask3[mask] &= np.isfinite(d['CLD_SW'][mask])
+			m = np.sum(mask2)
+			mx = np.sum(mask3)
+			if m == 0:
+				continue
+			x = i*n*1.1 + j
+			sym = SYMBOLS[group_no[g] - 1]
+			if 'CLD_SW' in vars_ and m != mx:
+				label = '%s (%d, %d)' % (g, m, mx) if i == 0 else None
+			else:
+				label = '%s (%d)' % (g, m) if i == 0 else None
+			dout[var] = np.hstack(
+				[dout[var], d[var][mask2]]
+				) if var in dout else d[var][mask2]
+			dout['%s_model' % var] = np.hstack(
+				[dout['%s_model' % var], [g]*np.sum(mask2)]
+				) if ('%s_model' % var) in dout else [g]*np.sum(mask2)
+			out = plt.scatter([x]*m, d[var][mask2],
+				s=18,
 				lw=0.8,
 				color='none',
+				marker=sym,
 				edgecolor=cmap(group_no[g] - 1),
 				label=label)
+			if bayes is not None:
+				mask_b = (bayes['var'] == var) & (bayes['model'] == g)
+				if np.sum(mask_b) == 1:
+					p_null = bayes['p_null'][mask_b]
+					if p_null < 0.05:
+						plt.text(x, np.max(d[var][mask2]), '*',
+							va='bottom', ha='center')
+					if p_null > 0.95:
+						ylim = plt.ylim()
+						dy = ylim[1] - ylim[0]
+						plt.text(x, np.min(d[var][mask2]) - dy*0.025, '*',
+							va='top', ha='center')
+			handles += [out]
 			mean = np.mean(d[var][mask])
 			gmean += mean
-			plt.plot([x-0.5, x+0.5], [mean, mean],
+			nx += 1
+			line = plt.plot([x-0.5, x+0.5], [mean, mean],
 				color='k', lw=0.8, zorder=-1)
-		gmean /= n
+		if nx > 0:
+			gmean /= nx
+		else:
+			gmean = np.nan
 		mean = np.mean(d[var])
-		label = 'simple mean' if i == 0 else None
-		plt.plot([i*n*1.05, i*n*1.05 + n - 1], [mean, mean],
-			color='k', lw=0.8, zorder=-2, label=label)
 		label = '%s mean' % group if i == 0 else None
-		plt.plot([i*n*1.05, i*n*1.05 + n - 1], [gmean, gmean],
+		line, = plt.plot([i*n*1.1, i*n*1.1 + n - 1], [gmean, gmean],
 			color='k', lw=0.8, zorder=-2, linestyle='dashed', label=label)
+		handles = [line] + handles
+		label = 'simple mean' if i == 0 else None
+		line, = plt.plot([i*n*1.1, i*n*1.1 + n - 1], [mean, mean],
+			color='k', lw=0.8, zorder=-2, label=label)
+		handles = [line] + handles
 		i += 1
 	if type(ylim) == dict:
 		ylim1 = plt.ylim(ylim[var])
 	else:
 		ylim1 = plt.ylim(ylim)
 	plt.yticks(np.arange(ylim1[0], ylim1[1] + 0.5, 0.5))
-	i = 0
-	for var in vars_:
-		if var not in d.keys():
-			continue
-		plt.text(i*n*1.05 + 0.5*(n - 1), ylim1[0] - 0.1*(ylim1[1] - ylim1[0]),
-			vars_[var], va='top', ha='center')
-		i += 1
 	plt.gca().set_xticks(xticks)
-	plt.gca().set_xticklabels(xticklabels, fontsize=5.5)
-	plt.xlim(xticks[0] - 1, xticks[-1] + 1)
+	plt.gca().set_xticklabels(xticklabels) #, fontsize=5.5)
+	plt.xlim(xticks[0] - n/2, xticks[-1] + n/2)
 	if show_hline:
 		plt.axhline(0, color='k', lw=0.5, zorder=-3, linestyle='dotted')
 	if type(ylabel) == dict:
-		plt.ylabel(ylabel[var])
-	else:
-		plt.ylabel(ylabel)
+		ylabel = '; '.join([ylabel[var] for var in vars_ if var in d.keys()])
+	plt.ylabel(ylabel)
 	if legend:
-		plt.legend(loc='upper left', fontsize=5.5, handlelength=1,
-			handletextpad=0.5)
+		plt.legend(handles=handles, loc=legend_pos, fontsize=6,
+			handlelength=1, handletextpad=0.5)
+	return dout
 
 if __name__ == '__main__':
-	if len(sys.argv) != 7:
+	if len(sys.argv) not in (7, 9, 11):
 		sys.stderr.write(sys.modules[__name__].__doc__)
 		sys.exit(1)
 	group = sys.argv[1]
@@ -178,6 +234,21 @@ if __name__ == '__main__':
 	cmip5 = sys.argv[4]
 	cmip6 = sys.argv[5]
 	output = sys.argv[6]
+	if len(sys.argv) >= 9:
+		output_cmip5 = sys.argv[7]
+		output_cmip6 = sys.argv[8]
+	else:
+		output_cmip5 = None
+		output_cmip6 = None
+	if len(sys.argv) == 11:
+		bayes_cmip5 = sys.argv[9]
+		bayes_cmip6 = sys.argv[10]
+	else:
+		bayes_cmip5 = None
+		bayes_cmip6 = None
+
+	d_bayes_cmip5 = ds.read(bayes_cmip5) if bayes_cmip5 is not None else None
+	d_bayes_cmip6 = ds.read(bayes_cmip6) if bayes_cmip6 is not None else None
 
 	models = model_weights.read_models(models_file)
 
@@ -199,7 +270,10 @@ if __name__ == '__main__':
 		if np.sum(mask1) > 0 or np.sum(mask2) > 0:
 			groups2 += [g]
 	groups = sorted(groups2)
-	group_no = {f: i+1 for i, f in enumerate(groups)}
+	if group == 'family':
+		group_no = {f: FAMILY_ORDER.index(f) + 1 for i, f in enumerate(groups)}
+	else:
+		group_no = {f: i+1 for i, f in enumerate(groups)}
 
 	def plot_letter(i):
 		plt.text(0, 1.04, '(%s)' % string.ascii_lowercase[i],
@@ -207,45 +281,46 @@ if __name__ == '__main__':
 
 	if sep == 'separate':
 		fig = plt.figure(figsize=(11, 10))
-		gs = mpl.gridspec.GridSpec(3, 4, hspace=0.3, wspace=0.3)
-		fig.add_subplot(gs[0,0:4])
+		gs = mpl.gridspec.GridSpec(3, 2, hspace=0.22, wspace=0.18)
+		dout = {'.': META}
+		fig.add_subplot(gs[0,0:2])
 		plt.title('CMIP6')
 		plot_letter(0)
-		plot(group, d2, models, VARS, ylim=YLIM, ylabel=YLABEL, group_no=group_no,
-			show_hline=True)
+		res = plot(group, d2, models, VARS, ylim=YLIM, ylabel=YLABEL,
+			group_no=group_no, show_hline=True, bayes=d_bayes_cmip6)
+		dout.update(res)
 		fig.add_subplot(gs[2,0])
 		plt.title('CMIP6')
 		plot_letter(2)
-		plot(group, d2, models, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2,
-			group_no=group_no)
-		fig.add_subplot(gs[2,1])
-		plt.title('CMIP6')
-		plot_letter(3)
-		plot(group, d2, models, VARS3, legend=False, ylim=YLIM3, ylabel=YLABEL3,
-			group_no=group_no)
-		fig.add_subplot(gs[1,0:4])
+		res = plot(group, d2, models, VARS2, legend=False, ylim=YLIM2,
+			ylabel=YLABEL2, group_no=group_no, bayes=d_bayes_cmip6)
+		dout.update(res)
+		if output_cmip5 is not None:
+			ds.write(output_cmip6, dout)
+		dout = {'.': META}
+		fig.add_subplot(gs[1,0:2])
 		plt.title('CMIP5')
 		plot_letter(1)
-		plot(group, d1, models, VARS, legend=True, ylim=YLIM, ylabel=YLABEL,
-			group_no=group_no, show_hline=True)
-		fig.add_subplot(gs[2,2])
+		res = plot(group, d1, models, VARS, legend=True, ylim=YLIM,
+			ylabel=YLABEL, group_no=group_no, show_hline=True,
+			bayes=d_bayes_cmip5)
+		dout.update(res)
+		fig.add_subplot(gs[2,1])
 		plt.title('CMIP5')
-		plot_letter(4)
-		plot(group, d1, models, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2,
-			group_no=group_no)
-		fig.add_subplot(gs[2,3])
-		plt.title('CMIP5')
-		plot_letter(5)
-		plot(group, d1, models, VARS3, legend=False, ylim=YLIM3, ylabel=YLABEL3,
-			group_no=group_no)
+		plot_letter(3)
+		plot(group, d1, models, VARS2, legend=False, ylim=YLIM2,
+			ylabel=YLABEL2, group_no=group_no, bayes=d_bayes_cmip5)
+		dout.update(res)
+		if output_cmip5 is not None:
+			ds.write(output_cmip5, dout)
 	else:
 		fig = plt.figure(figsize=(11, 6))
 		gs = mpl.gridspec.GridSpec(2, 2, hspace=0.3, wspace=0.1)
 		fig.add_subplot(gs[0,0:4])
 		plt.title('CMIP5 + CMIP6')
 		plot_letter(0)
-		plot(group, d, models, VARS, ylim=YLIM, ylabel=YLABEL, group_no=group_no,
-			show_hline=True)
+		plot(group, d, models, VARS, ylim=YLIM, ylabel=YLABEL,
+			group_no=group_no, show_hline=True)
 		fig.add_subplot(gs[1,0])
 		plot_letter(1)
 		plot(group, d, models, VARS2, legend=False, ylim=YLIM2, ylabel=YLABEL2,
