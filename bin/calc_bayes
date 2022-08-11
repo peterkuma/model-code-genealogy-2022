@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+'''
+Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
+
+Usage: calc_bayes <input> <output>
+
+Arguments:
+
+- input: Input file. The output of plot_feedbacks_by_group (NetCDF).
+- output: Output file (NetCDF).
+'''
+
+import sys
+import numpy as np
+import pymc3 as pm
+import ds_format as ds
+import matplotlib.pyplot as plt
+
+NBURN = 100
+NSAMPLES = 1000
+NCHAINS = 24
+NCORES = 24
+
+def bayes(x1, x2, nsamples=NSAMPLES, nburn=NBURN, nchains=NCHAINS, ncores=NCORES):
+	x = np.hstack([x1, x2])
+	xm = np.mean(x)
+	xsd = np.std(x)
+	xn = (x - xm)/xsd
+	x1n = (x1 - xm)/xsd
+	x2n = (x2 - xm)/xsd
+
+	with pm.Model() as model:
+		m1 = pm.Cauchy('m1', 0, 10)
+		m2 = pm.Cauchy('m2', 0, 10)
+		sd1 = pm.HalfCauchy('sd1', 10)
+		sd2 = pm.HalfCauchy('sd2', 10)
+		obs1 = pm.Normal('obs1', m1, sd1, observed=x1n)
+		obs2 = pm.Normal('obs2', m2, sd2, observed=xn)
+
+	with model:
+		step = pm.Metropolis()
+		trace = pm.sample(nsamples + nburn, step, chains=nchains, cores=ncores,
+			progressbar=False)
+		m1 = trace['m1'][(nburn*nchains):]
+		m2 = trace['m2'][(nburn*nchains):]
+		return np.sum(m2 - m1 > 0)/len(m1)
+
+if __name__ == '__main__':
+	if len(sys.argv) != 3:
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	input_ = sys.argv[1]
+	output = sys.argv[2]
+	d = ds.read(input_)
+	dout = {
+		'var': [],
+		'model': [],
+		'p_null': [],
+		'.': {
+			'var': {'.dims': ['item']},
+			'model': {'.dims': ['item']},
+			'p_null': {'.dims': ['item']},
+		}
+	}
+	for var in ds.get_vars(d):
+		if var.endswith('_model'):
+			continue
+		model = d['%s_model' % var]
+		models = list(set(model))
+		for m in models:
+			mask = model == m
+			x1 = d[var][mask]
+			x2 = d[var][~mask]
+			res = bayes(x1, x2)
+			dout['var'] += [var]
+			dout['model'] += [m]
+			dout['p_null'] += [res]
+	ds.write(output, dout)
