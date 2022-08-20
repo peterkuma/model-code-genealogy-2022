@@ -5,7 +5,7 @@ Usage: model_weights <type> <models> [<subset>]
 
 Arguments:
 
-- type: Type of "democracy". One of: "variant", "model", "institution", "country", "code", "family".
+- type: Type of "democracy". One of: "variant", "model", "institute", "country", "code", "family".
 - models: Table of all models (CSV).
 - subset: List of models to calculate weights for (CSV).
 
