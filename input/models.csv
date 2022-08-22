@@ -36,7 +36,7 @@ AWI-ESM1.1,ECMWF,AWI,Germany,ESM,AWI-CM1.1,,,,AWI-ESM-1-1-LR,"FESOM (2022): http
 CMCC-CMS,ECMWF,CMCC,Italy,AOGCM,ECHAM5,,,CMCC-CMS,,"es-doc (2015): https://view.es-doc.org/?renderMethod=name&type=cim.1.software.ModelComponent&name=CMCC-CMS&project=CMIP5"
 ICON-ESM,ECMWF,MPI-M/HAMMOZ,Germany,ESM,ICON-A,,,,ICON-ESM-LR,"Jungclaus et al. (2022)"
 NESM3,ECMWF,NUIST,China,AOGCM,ECHAM6.3,,,,NESM3,"Cao et al. (2021)"
-CCM0B,CCM,NCAR/NSF/DOE,USA,AGCM,ECMWF,,,,,
+CCM0B,CCM,NCAR/NSF/DOE,USA,AGCM,ECMWF,,,,,"Edwards (2010)"
 CCM3,CCM,NCAR/NSF/DOE,USA,AGCM,,,,,,
 CAM,CCM,NCAR/NSF/DOE,USA,AGCM,,CCM3,,,,"Collins et al. (2006)"
 CAM2,CCM,NCAR/NSF/DOE,USA,AGCM,,CAM,,,,
