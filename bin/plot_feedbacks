@@ -71,7 +71,7 @@ VARS3 = {
 	'TCR': 'TCR',
 }
 
-YLABEL = 'Feedback difference (mWm$^{-2}K^{-1}$)'
+YLABEL = 'Feedback difference (mWm$^{-2}$K$^{-1}$)'
 YLABEL2 = 'ECS difference (K)'
 YLABEL3 = {
 	 'ERF_2x': 'ERF$_{2x}$ difference (mWm$^{-2}$)',
@@ -148,7 +148,7 @@ def plot(d, s, d1, d2, s1, s2, vars_, \
 		]
 		plt.bar(x, y,
 			width=0.7/n,
-			label='Simple mean [RMSD = %.0f]' % (rmsd1*1e3),
+			label='Simple mean [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd1*1e3),
 			color='k',
 		)
 		for j in range(len(x)):
@@ -165,7 +165,7 @@ def plot(d, s, d1, d2, s1, s2, vars_, \
 		]
 		plt.bar(x + 0.7/n, y,
 			width=0.7/n,
-			label='Code [RMSD = %.0f]' % (rmsd2*1e3),
+			label='Code [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd2*1e3),
 			color='grey',
 		)
 		for j in range(len(x)):
