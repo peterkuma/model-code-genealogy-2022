@@ -113,7 +113,7 @@ bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6
 bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 ```
 
-### plot\_feedbacks
+### plot\_feedbacks [Figure 3]
 
 ```
 Plot bar plot with model feedbacks.
@@ -131,7 +131,7 @@ Examples:
 bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks.pdf
 ```
 
-### plot\_feedbacks\_by\_group
+### plot\_feedbacks\_by\_group [Figure 4]
 
 ```
 Plot bar plot with model feedbacks by model group (family or country).
@@ -175,7 +175,7 @@ bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_
 bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
 ```
 
-### plot\_tas
+### plot\_tas [Figure 5 and 6]
 
 ```
 Plot global mean near-surface air temperature.
