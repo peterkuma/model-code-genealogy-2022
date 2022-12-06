@@ -1,7 +1,8 @@
-# Model code genealogy
+# Code accompanying the manuscript "Climate model code genealogy and its relation to climate feedbacks and sensitivity"
 
-This repository contains code to accompanying the manuscript "Climate model
-code genealogy and its relation to climate feedbacks and sensitivity".
+This repository contains code to accompanying the manuscript [Climate model
+code genealogy and its relation to climate feedbacks and
+sensitivity](https://peterkuma.net/science/papers/kuma_et_al_2022b/).
 
 The code contains programs for calculating climate model averaging weights
 based on multiple choices of model "democracy":
