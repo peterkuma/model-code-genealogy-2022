@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 '''Calculate model weights based on code genealogy.
 
-Usage: model_weights <type> <models> [<subset>]
+Usage: model_weights TYPE MODELS [SUBSET]
 
 Arguments:
 
-- type: Type of "democracy". One of: "variant", "model", "institute", "country", "code", "family".
-- models: Table of all models (CSV).
-- subset: List of models to calculate weights for (CSV).
+  TYPE    Type of "democracy". One of: "variant", "model", "institute", "country", "code", "family".
+  MODELS  Table of all models (CSV).
+  SUBSET  List of models to calculate weights for (CSV).
 
 Files:
 
@@ -16,7 +16,7 @@ subset CSV file should contains a single column "Model" with a list of models,
 referring to a model or a variant in the "Model" or "CMIPx names" columns
 of the models file, respectively.
 
-Example:
+Examples:
 
 bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
 '''

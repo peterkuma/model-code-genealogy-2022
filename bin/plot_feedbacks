@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks.
 
-Usage: plot_feedbacks <models> <cmip5> <cmip6> <output>
+Usage: plot_feedbacks MODELS CMIP5 CMIP6 OUTPUT
 
 Arguments:
 
-- models: Table of all models (CSV).
-- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
-identifying the model, and columns to calculate statistics for.
-- output: Output plot (PDF).
+  MODELS        Table of all models (CSV).
+  CMIP5, CMIP6  Input data (CSV). The table should contain a column "Model" identifying the model, and columns to calculate statistics for.
+  OUTPUT        Output plot (PDF).
 
 Examples:
 

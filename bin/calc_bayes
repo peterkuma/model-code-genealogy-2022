@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-'''
-Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
+'''Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
 
-Usage: calc_bayes <input> <output>
+Usage: calc_bayes INPUT OUTPUT
 
 Arguments:
 
-- input: Input file. The output of plot_feedbacks_by_group (NetCDF).
-- output: Output file (NetCDF).
+  INPUT   Input file. The output of plot_feedbacks_by_group (NetCDF).
+  OUTPUT  Output file (NetCDF).
 
 Examples:
 

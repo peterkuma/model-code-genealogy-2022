@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 '''Plot global mean near-surface air temperature.
 
-Usage: plot_tas <models> <control> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
+Usage: plot_tas MODELS CONTROL TAS HADCRUT OUTPUT Y1 Y2 TITLE [OPTIONS]
 
 Arguments:
 
-- models: Table of models (CSV).
-- control: Input directory with model tas - piControl or none (NetCDF).
-- tas: Input directory with model tas - experiment (NetCDF).
-- hadcrut: Input HadCRUT file (NetCDF).
-- output: Output plot (PDF).
-- y1: Start year.
-- y2: End year.
-- title: Plot title.
+  MODELS   Table of models (CSV).
+  CONTROL  Input directory with model tas - piControl or none (NetCDF).
+  TAS      Input directory with model tas - experiment (NetCDF).
+  HADCRUT  Input HadCRUT file (NetCDF).
+  OUTPUT   Output plot (PDF).
+  Y1       Start year.
+  Y2       End year.
+  TITLE    Plot title.
 
 Options:
 
-- divider: Year to plot vertical divider on.
+  divider: VALUE  Year to plot vertical divider on.
 
 Example:
 

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 '''Calculate model statistics.
 
-Usage: calc_model_stats <input> <models>
+Usage: calc_model_stats INPUT MODELS
 
 Arguments:
 
-- input: Input data (CSV). The table should contain a column "Model" identifying
-the model, and an arbitrary number of other columns to calculate statistics for.
-- models: Table of all models (CSV).
+  INPUT   Input data (CSV). The table should contain a column "Model" identifying the model, and an arbitrary number of other columns to calculate statistics for.
+  MODELS  Table of all models (CSV).
 
 Examples:
 

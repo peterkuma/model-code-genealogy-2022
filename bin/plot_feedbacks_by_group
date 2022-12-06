@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks by model group (family or country).
 
-Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output> [<output_cmip5> <output_cmip6> [<bayes_cmip5> <bayes_cmip6 ]]
+Usage: plot_feedbacks_by_group GROUP SEP MODELS CMIP5 CMIP6 OUTPUT [OUTPUT_CMIP5 OUTPUT_CMIP6 [BAYES_CMIP5 BAYES_CMIP6]]
 
 Arguments:
 
-- group: Group to show. One of: "family", "country".
-- sep: CMIP5 and CMIP6 separate or together. One of "separate", "together".
-- models: Table of all models (CSV).
-- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
-identifying the model, and columns to calculate statistics for.
-- output: Output plot (PDF).
-- output_cmip5: CMIP5 plot data output (NetCDF).
-- output_cmip6: CMIP6 plot data output (NetCDF).
-- bayes_cmip5: CMIP5 Bayes test input (NetCDF).
-- bayes_cmip6: CMIP5 Bayes test input (NetCDF).
+  GROUP         Group to show. One of: "family", "country".
+  SEP           CMIP5 and CMIP6 separate or together. One of "separate", "together".
+  MODELS        Table of all models (CSV).
+  CMIP5, CMIP6  Input data (CSV). The table should contain a column "Model" identifying the model, and columns to calculate statistics for.
+  OUTPUT        Output plot (PDF).
+  OUTPUT_CMIP5  CMIP5 plot data output (NetCDF).
+  OUTPUT_CMIP6  CMIP6 plot data output (NetCDF).
+  BAYES_CMIP5   CMIP5 Bayes test input (NetCDF).
+  BAYES_CMIP6   CMIP5 Bayes test input (NetCDF).
 
 Examples:
 

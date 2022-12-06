@@ -71,16 +71,16 @@ Programs are stored in the `bin` directory.
 
 ### model\_weights
 
-```
+```sh
 Calculate model weights based on code genealogy.
 
-Usage: model_weights <type> <models> [<subset>]
+Usage: model_weights TYPE MODELS [SUBSET]
 
 Arguments:
 
-- type: Type of "democracy". One of: "variant", "model", "institute", "country", "code", "family".
-- models: Table of all models (CSV).
-- subset: List of models to calculate weights for (CSV).
+  TYPE    Type of "democracy". One of: "variant", "model", "institute", "country", "code", "family".
+  MODELS  Table of all models (CSV).
+  SUBSET  List of models to calculate weights for (CSV).
 
 Files:
 
@@ -89,23 +89,22 @@ subset CSV file should contains a single column "Model" with a list of models,
 referring to a model or a variant in the "Model" or "CMIPx names" columns
 of the models file, respectively.
 
-Example:
+Examples:
 
 bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
 ```
 
 ### calc\_model\_stats
 
-```
+```sh
 Calculate model statistics.
 
-Usage: calc_model_stats <input> <models>
+Usage: calc_model_stats INPUT MODELS
 
 Arguments:
 
-- input: Input data (CSV). The table should contain a column "Model" identifying
-the model, and an arbitrary number of other columns to calculate statistics for.
-- models: Table of all models (CSV).
+  INPUT   Input data (CSV). The table should contain a column "Model" identifying the model, and an arbitrary number of other columns to calculate statistics for.
+  MODELS  Table of all models (CSV).
 
 Examples:
 
@@ -116,17 +115,16 @@ bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6
 
 ### plot\_feedbacks
 
-```
+```sh
 Plot bar plot with model feedbacks.
 
-Usage: plot_feedbacks <models> <cmip5> <cmip6> <output>
+Usage: plot_feedbacks MODELS CMIP5 CMIP6 OUTPUT
 
 Arguments:
 
-- models: Table of all models (CSV).
-- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
-identifying the model, and columns to calculate statistics for.
-- output: Output plot (PDF).
+  MODELS        Table of all models (CSV).
+  CMIP5, CMIP6  Input data (CSV). The table should contain a column "Model" identifying the model, and columns to calculate statistics for.
+  OUTPUT        Output plot (PDF).
 
 Examples:
 
@@ -135,23 +133,22 @@ bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedba
 
 ### plot\_feedbacks\_by\_group
 
-```
+```sh
 Plot bar plot with model feedbacks by model group (family or country).
 
-Usage: plot_feedbacks_by_group <group> <models> <cmip5> <cmip6> <output> [<output_cmip5> <output_cmip6> [<bayes_cmip5> <bayes_cmip6 ]]
+Usage: plot_feedbacks_by_group GROUP SEP MODELS CMIP5 CMIP6 OUTPUT [OUTPUT_CMIP5 OUTPUT_CMIP6 [BAYES_CMIP5 BAYES_CMIP6]]
 
 Arguments:
 
-- group: Group to show. One of: "family", "country".
-- sep: CMIP5 and CMIP6 separate or together. One of "separate", "together".
-- models: Table of all models (CSV).
-- cmip5, cmip6: Input data (CSV). The table should contain a column "Model"
-identifying the model, and columns to calculate statistics for.
-- output: Output plot (PDF).
-- output_cmip5: CMIP5 plot data output (NetCDF).
-- output_cmip6: CMIP6 plot data output (NetCDF).
-- bayes_cmip5: CMIP5 Bayes test input (NetCDF).
-- bayes_cmip6: CMIP5 Bayes test input (NetCDF).
+  GROUP         Group to show. One of: "family", "country".
+  SEP           CMIP5 and CMIP6 separate or together. One of "separate", "together".
+  MODELS        Table of all models (CSV).
+  CMIP5, CMIP6  Input data (CSV). The table should contain a column "Model" identifying the model, and columns to calculate statistics for.
+  OUTPUT        Output plot (PDF).
+  OUTPUT_CMIP5  CMIP5 plot data output (NetCDF).
+  OUTPUT_CMIP6  CMIP6 plot data output (NetCDF).
+  BAYES_CMIP5   CMIP5 Bayes test input (NetCDF).
+  BAYES_CMIP6   CMIP5 Bayes test input (NetCDF).
 
 Examples:
 
@@ -165,12 +162,12 @@ bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS
 ```sh
 Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
 
-Usage: calc_bayes <input> <output>
+Usage: calc_bayes INPUT OUTPUT
 
 Arguments:
 
-- input: Input file. The output of plot_feedbacks_by_group (NetCDF).
-- output: Output file (NetCDF).
+  INPUT   Input file. The output of plot_feedbacks_by_group (NetCDF).
+  OUTPUT  Output file (NetCDF).
 
 Examples:
 
@@ -183,22 +180,22 @@ bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_
 ```sh
 Plot global mean near-surface air temperature.
 
-Usage: plot_tas <models> <control> <tas> <hadcrut> <output> <y1> <y2> <title> divider: <divider>
+Usage: plot_tas MODELS CONTROL TAS HADCRUT OUTPUT Y1 Y2 TITLE [OPTIONS]
 
 Arguments:
 
-- models: Table of models (CSV).
-- control: Input directory with model tas - piControl or none (NetCDF).
-- tas: Input directory with model tas - experiment (NetCDF).
-- hadcrut: Input HadCRUT file (NetCDF).
-- output: Output plot (PDF).
-- y1: Start year.
-- y2: End year.
-- title: Plot title.
+  MODELS   Table of models (CSV).
+  CONTROL  Input directory with model tas - piControl or none (NetCDF).
+  TAS      Input directory with model tas - experiment (NetCDF).
+  HADCRUT  Input HadCRUT file (NetCDF).
+  OUTPUT   Output plot (PDF).
+  Y1       Start year.
+  Y2       End year.
+  TITLE    Plot title.
 
 Options:
 
-- divider: Year to plot vertical divider on.
+  divider: VALUE  Year to plot vertical divider on.
 
 Example:
 
