@@ -18,7 +18,7 @@ Options:
 
   divider: VALUE  Year to plot vertical divider on.
 
-Example:
+Examples:
 
 bin/plot_tas input/models.csv none input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
 bin/plot_tas input/models.csv none input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015

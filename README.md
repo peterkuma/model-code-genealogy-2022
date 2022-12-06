@@ -71,7 +71,7 @@ Programs are stored in the `bin` directory.
 
 ### model\_weights
 
-```sh
+```
 Calculate model weights based on code genealogy.
 
 Usage: model_weights TYPE MODELS [SUBSET]
@@ -96,7 +96,7 @@ bin/model_weights code input/models.csv input/subset.csv > data/model_weights_co
 
 ### calc\_model\_stats
 
-```sh
+```
 Calculate model statistics.
 
 Usage: calc_model_stats INPUT MODELS
@@ -115,7 +115,7 @@ bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6
 
 ### plot\_feedbacks
 
-```sh
+```
 Plot bar plot with model feedbacks.
 
 Usage: plot_feedbacks MODELS CMIP5 CMIP6 OUTPUT
@@ -133,7 +133,7 @@ bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedba
 
 ### plot\_feedbacks\_by\_group
 
-```sh
+```
 Plot bar plot with model feedbacks by model group (family or country).
 
 Usage: plot_feedbacks_by_group GROUP SEP MODELS CMIP5 CMIP6 OUTPUT [OUTPUT_CMIP5 OUTPUT_CMIP6 [BAYES_CMIP5 BAYES_CMIP6]]
@@ -159,7 +159,7 @@ bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS
 
 ### calc\_bayes
 
-```sh
+```
 Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
 
 Usage: calc_bayes INPUT OUTPUT
@@ -177,7 +177,7 @@ bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_
 
 ### plot\_tas
 
-```sh
+```
 Plot global mean near-surface air temperature.
 
 Usage: plot_tas MODELS CONTROL TAS HADCRUT OUTPUT Y1 Y2 TITLE [OPTIONS]
@@ -197,7 +197,7 @@ Options:
 
   divider: VALUE  Year to plot vertical divider on.
 
-Example:
+Examples:
 
 bin/plot_tas input/models.csv none input/cmip6/historical/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical.pdf 1850 2014 'CMIP6 historical'
 bin/plot_tas input/models.csv none input/cmip6/historical+ssp245/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip6_historical+ssp245.pdf 1850 2099 'CMIP6 historical + SSP2-4.5' divider: 2015
