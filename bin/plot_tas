@@ -40,13 +40,13 @@ FAMILY_ORDER = [
 	'CSIRO',
 	'GFDL',
 	'GFS',
-	'HadCM',
-	'IFS/ARPEGE',
+	'HadAM',
+	'ECMWF',
 	'INM',
-	'LMDZ',
+	'IPSL',
 	'MIROC',
 	'UA MCM',
-	'UCLA',
+	'UCLA GCM',
 ]
 
 import os
