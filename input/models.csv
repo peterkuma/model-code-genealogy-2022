@@ -7,12 +7,12 @@ ECMWF,ECMWF,ECMWF,Europe,AGCM,,,,,,
 "IFS/ARPEGE CY36R4",ECMWF,ECMWF/CNRM,Europe,AGCM,,"IFS/ARPEGE CY32T0",,,,
 "IFS/ARPEGE CY37",ECMWF,ECMWF/CNRM,Europe,AGCM,,"IFS/ARPEGE CY36R4",,,,
 "IFS/ARPEGE CY43R1",ECMWF,ECMWF/CNRM,Europe,AGCM,,"IFS/ARPEGE CY37",,,,
-EC-Earth2.2,ECMWF,"EC-Earth Consortium/ICHEC",Europe,ESM,"IFS/ARPAGE CY31R1",,,EC-EARTH-2-2,,"Hazeleger et al. (2010), Hazeleger et al. (2011)"
+EC-Earth2.2,ECMWF,"EC-Earth Consortium/ICHEC",Europe,ESM,"IFS/ARPEGE CY31R1",,,EC-EARTH-2-2,,"Hazeleger et al. (2010), Hazeleger et al. (2011)"
 EC-Earth2.3,ECMWF,"EC-Earth Consortium/ICHEC",Europe,ESM,,EC-Earth2.2,,EC-EARTH,,
 EC-Earth3,ECMWF,"EC-Earth Consortium/ICHEC",Europe,ESM,,EC-Earth2.3,,,"EC-Earth3,EC-Earth3-AerChem,EC-Earth3-CC,EC-Earth3-LR,EC-Earth3-Veg,EC-Earth3-Veg-LR,EC-Earth3P,EC-Earth3P-HR,EC-Earth3P-VHR","WCRP (2022)"
-"ARPEGE-Climat 3",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPAGE CY18",,,,,"CNRM (2022a): https://www.umr-cnrm.fr/spip.php?article124&lang=en"
-"ARPEGE-Climat 5.2",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPAGE CY32T0","ARPEGE-Climat 3",,,,"CNRM (2008): https://www.umr-cnrm.fr/gmapdoc/IMG/pdf_arp51ca.pdf"
-"ARPEGE-Climat 6.3",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPAGE CY37","ARPEGE-Climat 5.2",,,,"Roehrig et al. (2020)"
+"ARPEGE-Climat 3",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPEGE CY18",,,,,"CNRM (2022a): https://www.umr-cnrm.fr/spip.php?article124&lang=en"
+"ARPEGE-Climat 5.2",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPEGE CY32T0","ARPEGE-Climat 3",,,,"CNRM (2008): https://www.umr-cnrm.fr/gmapdoc/IMG/pdf_arp51ca.pdf"
+"ARPEGE-Climat 6.3",ECMWF,CNRM/CERFACS,France,AGCM,"IFS/ARPEGE CY37","ARPEGE-Climat 5.2",,,,"Roehrig et al. (2020)"
 CNRM-CM3,ECMWF,CNRM/CERFACS,France,AOGCM,"ARPEGE-Climat 3",,cnrm_cm3,,,"Salas-Mélia et al. (2005)"
 CNRM-CM5.1,ECMWF,CNRM/CERFACS,France,AOGCM,"ARPEGE-Climat 5.2",CNRM-CM3,,CNRM-CM5,,
 CNRM-CM5.2,ECMWF,CNRM/CERFACS,France,AOGCM,,CNRM-CM5.1,,CNRM-CM5-2,,
@@ -138,7 +138,7 @@ GISS-E2,"UCLA GCM","NASA GISS",USA,ESM,,GISS-E1,,"GISS-E2-H,GISS-E2-H-CC,GISS-E2
 GISS-E2.1,"UCLA GCM","NASA GISS",USA,ESM,,GISS-E2,,,"GISS-E2-1-G,GISS-E2-1-G-CC,GISS-E2-1-H",
 GISS-E2.2,"UCLA GCM","NASA GISS",USA,ESM,,GISS-E2.1,,,"GISS-E2-2-G,GISS-E2-2-H",
 GISS-E3,"UCLA GCM","NASA GISS",USA,ESM,,GISS-E2.2,,,GISS-E3-G,
-GISS-AOM,"UCLA GCM","NASA GISS",USA,AOGCM,"GISS Model III",,giss_aom,,,"Russel et al. (2010)"
+GISS-AOM,"UCLA GCM","NASA GISS",USA,AOGCM,"GISS Model II",,giss_aom,,,"Russel et al. (2010)"
 MRI-GCM1,"UCLA GCM",MRI,Japan,AGCM,"UCLA GCM II",,,,,"Tokioka et al. (1984), Edwards (2000)"
 MRI-AGCM2,"UCLA GCM",MRI,Japan,AGCM,,MRI-GCM1,,,,
 MRI-AGCM3,"UCLA GCM",MRI,Japan,AGCM,,MRI-AGCM2,,,,
@@ -157,8 +157,8 @@ HadCM3,HadAM,"UKMO/MOHC/KMA NIMR",UK,AOGCM,HadAM3,,ukmo_hadcm3,HadCM3,,"Martin e
 HadGEM1,HadAM,"UKMO/MOHC/KMA NIMR",UK,AOGCM,HadGAM1,HadCM3,ukmo_hadgem1,,,"Johns et al. (2006), Martin et al. (2006)"
 HadGEM2,HadAM,"UKMO/MOHC/KMA NIMR",UK,AOGCM,HadGAM2,HadGEM1,,"HadGEM2-A,HadGEM2-AO,HadGEM2-CC,HadGEM2-ES",,
 HadGEM3-GC3.1,HadAM,"UKMO/MOHC/KMA NIMR",UK,AOGCM,GA7.1,HadGEM2,,,"HadGEM3-GC31-HH,HadGEM3-GC31-HM,HadGEM3-GC31-LL,HadGEM3-GC31-LM,HadGEM3-GC31-MH,HadGEM3-GC31-MM","WCRP (2022): https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html"
-UKESM1.0,HadAM,"UKMO/MOHC/KMA NIMR",UK,ESM,HadGEM3,,,,"UKESM1-0-LL,UKESM1-1-LL,UKESM1-ice-LL","Sellar et al. (2019)"
-K-ACE1.0,HadAM,NIMS/KMA,"South Korea",ESM,HadGEM3,,,,KACE-1-0-G,"WCRP (2022): https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html"
+UKESM1.0,HadAM,"UKMO/MOHC/KMA NIMR",UK,ESM,HadGEM3-GC3.1,,,,"UKESM1-0-LL,UKESM1-1-LL,UKESM1-ice-LL","Sellar et al. (2019)"
+K-ACE1.0,HadAM,NIMS/KMA,"South Korea",ESM,HadGEM3-GC3.1,,,,KACE-1-0-G,"WCRP (2022): https://wcrp-cmip.github.io/CMIP6_CVs/docs/CMIP6_source_id.html"
 ACCESS-CM,HadAM,CSIRO/QCCCE/UNSW/BOM/ARCCSS,Australia,AOGCM,HadGEM2,,,,,"Bi et al. (2013)"
 ACCESS-CM2,HadAM,CSIRO/QCCCE/UNSW/BOM/ARCCSS,Australia,AOGCM,GA7.1,ACCESS-CM,,,ACCESS-CM2,"Bi et al. (2020)"
 ACCESS1.0,HadAM,CSIRO/QCCCE/UNSW/BOM/ARCCSS,Australia,AOGCM,ACCESS-CM,,,ACCESS1-0,,"Bi et al. (2013)"
