@@ -202,3 +202,8 @@ bin/plot_tas input/models.csv none input/cmip5/historical+rcp45/tas input/HadCRU
 bin/plot_tas input/models.csv input/cmip5/{piControl,abrupt-4xCO2}/tas none plot/tas_cmip5_abrupt-4xCO2.pdf 1 140 'CMIP5 abrupt-4xCO2'
 bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_cmip5_1pctCO2.pdf 1 140 'CMIP5 1pctCO2'
 ```
+
+## License
+
+This code is open source and can be used freely under the terms of an MIT
+license as detailed in the file [LICENSE.md](LICENSE.md).
