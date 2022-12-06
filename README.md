@@ -28,15 +28,8 @@ On Debian-based Linux distributions, these can be installed with:
 apt install python3 libnetcdf-dev
 ```
 
-Required Python packages:
-
-- numpy 1.22.1
-- scipy 1.7.3
-- pandas 1.4.3
-- pymc3 3.11.5
-- ds-format 2.0.0
-
-The Python packages can be installed with
+The required Python packages are listed in `requirements.txt` and can be
+installed with:
 
 ```sh
 pip3 install -r requirements.txt
