@@ -40,7 +40,7 @@ pip3 install -r requirements.txt
 Input files are stored in the `input` directory.
 
 - `models.csv`: A CSV file containing a database of climate models and their
-  code genealogy.
+  code genealogy. A list of references can be found in the supplement.
 - `subset.csv`: An example subset file listing models to calculate weights for.
 - `ar6_cmip5.csv`: CMIP5 models table from IPCC AR6.
 - `ar6_cmip6.csv`: CMIP6 models table from IPCC AR6.
