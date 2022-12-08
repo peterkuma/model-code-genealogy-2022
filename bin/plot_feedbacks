@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 '''Plot bar plot with model feedbacks.
 
-Usage: plot_feedbacks MODELS CMIP5 CMIP6 OUTPUT
+Usage: plot_feedbacks MODELS CMIP5 CMIP6 OUTPUT [OPTIONS]
 
 Arguments:
 
   MODELS        Table of all models (CSV).
   CMIP5, CMIP6  Input data (CSV). The table should contain a column "Model" identifying the model, and columns to calculate statistics for.
   OUTPUT        Output plot (PDF).
+
+Options:
+
+  --annotated  Plot bar chart annotations.
 
 Examples:
 
@@ -26,6 +30,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import scipy
+import pst
 
 COLORS = ['#0084C8', '#DC0000', '#009100', '#FFC022', '#ba00ff']
 
@@ -69,6 +74,14 @@ VARS3 = {
 	'ERF_2x': 'ERF$_{2x}$',
 	'TCR': 'TCR',
 }
+VARS_RMSD = [
+	'PL',
+	'WV',
+	'LR',
+	'ALB',
+	'CLD_SW',
+	'CLD_LW',
+]
 
 YLABEL = 'Feedback difference (mWm$^{-2}$K$^{-1}$)'
 YLABEL2 = 'ECS difference (K)'
@@ -77,7 +90,7 @@ YLABEL3 = {
 	 'TCR': 'TCR difference (K)',
 }
 
-YLIM = [-150, 100]
+YLIM = [-160, 100]
 YLIM2 = [-0.3, 0.2]
 YLIM3 = {
 	'ERF_2x': [-65, 70],
@@ -130,16 +143,15 @@ def calc_stats(d, vars_, models_table):
 				out['%s_%s' % (var, type_)] = 0
 	return out
 
-def plot(d, s, d1, d2, s1, s2, vars_, \
-	diff=False, ylim=None, legend=True, scale=1, ylabel=None):
+def plot(d, s, d1, d2, s1, s2, vars_, diff=False, ylim=None, legend=True,
+	scale=1, ylabel=None, annotated=False):
 
 	varsx = [x for x in vars_.keys() if x in d.keys()]
 	m = len(varsx)
 	x = np.arange(m)
 	if diff:
 		n = 2
-		varsxx = [var for var in varsx if var not in ('NET', 'ERR', 'CLD')]
-		rmsd1 = np.sqrt(np.mean(np.array([(np.mean(d2[var]) - np.mean(d1[var])) for var in varsxx])**2))
+		rmsd1 = np.sqrt(np.mean(np.array([(np.mean(d2[var]) - np.mean(d1[var])) for var in VARS_RMSD])**2))
 		y = [
 			(scale[var] if type(scale) is dict else scale)* \
 			(np.mean(d2[var]) - np.mean(d1[var])) \
@@ -150,13 +162,14 @@ def plot(d, s, d1, d2, s1, s2, vars_, \
 			label='Simple mean [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd1*1e3),
 			color='k',
 		)
-		for j in range(len(x)):
-			plt.text(x[j], 0, '%.2f' % y[j],
-				fontsize=4,
-				ha='center',
-				color='red',
-			)
-		rmsd2 = np.sqrt(np.mean(np.array([(s2['%s_country' % var] - s1['%s_country' % var]) for var in varsxx])**2))
+		if annotated:
+			for j in range(len(x)):
+				plt.text(x[j], 0, '%.2f' % y[j],
+					fontsize=4,
+					ha='center',
+					color='red',
+				)
+		rmsd2 = np.sqrt(np.mean(np.array([(s2['%s_code' % var] - s1['%s_code' % var]) for var in VARS_RMSD])**2))
 		y = [
 			(scale[var] if type(scale) is dict else scale)* \
 			(s2['%s_code' % var] - s1['%s_code' % var]) \
@@ -167,12 +180,13 @@ def plot(d, s, d1, d2, s1, s2, vars_, \
 			label='Code [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd2*1e3),
 			color='grey',
 		)
-		for j in range(len(x)):
-			plt.text(x[j] + 0.7/n, 0, '%.2f' % y[j],
-				fontsize=4,
-				ha='center',
-				color='red',
-			)
+		if annotated:
+			for j in range(len(x)):
+				plt.text(x[j] + 0.7/n, 0, '%.2f' % y[j],
+					fontsize=4,
+					ha='center',
+					color='red',
+				)
 	else:
 		n = len(TYPES) - 1
 		for i, type_ in enumerate(TYPES[1:]):
@@ -189,11 +203,11 @@ def plot(d, s, d1, d2, s1, s2, vars_, \
 				hatch=HATCH[i],
 				alpha=0.999,
 			)
-			for j in range(len(x)):
-				plt.text(x[j], 0, '%.0f' % y[j],
-					fontsize=3,
-					ha='center',
-				)
+			#for j in range(len(x)):
+			#	plt.text(x[j], 0, '%.0f' % y[j],
+			#		fontsize=3,
+			#		ha='center',
+			#	)
 	plt.gca().set_xticks(np.arange(m) + 0.7/2*(n - 1)/n)
 	if diff:
 		plt.gca().set_xticklabels([vars_[k] for k in varsx])
@@ -219,13 +233,15 @@ def plot_letter(i):
 		transform=plt.gca().transAxes, weight='bold')
 
 if __name__ == '__main__':
-	if len(sys.argv) != 5:
+	args, opts = pst.decode_argv(sys.argv[1:], as_unicode=True)
+	if len(args) != 4:
 		sys.stderr.write(sys.modules[__name__].__doc__)
 		sys.exit(1)
-	models_file = sys.argv[1]
-	cmip5 = sys.argv[2]
-	cmip6 = sys.argv[3]
-	output = sys.argv[4]
+	models_file = args[0]
+	cmip5 = args[1]
+	cmip6 = args[2]
+	output = args[3]
+	annotated = opts.get('annotated', False)
 
 	models_table = model_weights.read_models(models_file)
 
@@ -264,11 +280,11 @@ if __name__ == '__main__':
 	plt.title('CMIP6 - CMIP5')
 	plot_letter(2)
 	plot(d1, s1, d1, d2, s1, s2, VARS, diff=True, legend=True, ylim=YLIMD,
-		scale=SCALE, ylabel=YLABEL)
+		scale=SCALE, ylabel=YLABEL, annotated=annotated)
 	fig.add_subplot(gs[7])
 	plot(d1, s1, d1, d2, s1, s2, VARS2, diff=True, legend=False, ylim=YLIMD2,
-		scale=SCALE2, ylabel=YLABEL2)
+		scale=SCALE2, ylabel=YLABEL2, annotated=annotated)
 	fig.add_subplot(gs[8])
 	plot(d1, s1, d1, d2, s1, s2, VARS3, diff=True, legend=False, ylim=YLIMD3,
-		scale=SCALE3, ylabel=YLABEL3)
+		scale=SCALE3, ylabel=YLABEL3, annotated=annotated)
 	plt.savefig(output, bbox_inches='tight')
