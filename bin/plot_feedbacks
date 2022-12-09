@@ -71,7 +71,7 @@ VARS = {
 }
 VARS2 = {'ECS': 'ECS'}
 VARS3 = {
-	'ERF_2x': 'ERF$_{2x}$',
+	'ERF_2x': 'ERF$_{\\mathrm{2x}}$',
 	'TCR': 'TCR',
 }
 VARS_RMSD = [
@@ -86,7 +86,7 @@ VARS_RMSD = [
 YLABEL = 'Feedback difference (mWm$^{-2}$K$^{-1}$)'
 YLABEL2 = 'ECS difference (K)'
 YLABEL3 = {
-	 'ERF_2x': 'ERF$_{2x}$ difference (mWm$^{-2}$)',
+	 'ERF_2x': 'ERF$_{\\mathrm{2x}}$ difference (mWm$^{-2}$)',
 	 'TCR': 'TCR difference (K)',
 }
 
