@@ -13,6 +13,8 @@ based on multiple choices of model "democracy":
 - `country`: All countries are equal.
 - `code`: Model weights are calculated based on model code genealogy.
 
+![Model code genealogy](model_code_genealogy.svg?raw=true)
+
 ## Requirements
 
 The programs are to be run on Linux or another unix-like operating system in
