@@ -63,6 +63,60 @@ the archives `cmip5.tar.xz` and `cmip6.tar.xz`.
 
 Programs are stored in the `bin` directory.
 
+### calc\_bayes
+
+```
+Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
+
+Usage: calc_bayes INPUT OUTPUT
+
+Arguments:
+
+  INPUT   Input file. The output of plot_feedbacks_by_group (NetCDF).
+  OUTPUT  Output file (NetCDF).
+
+Examples:
+
+bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_bayes.nc
+bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
+```
+
+### calc\_model\_count [Table S1]
+
+```
+Calculate model count by family, institute and country.
+
+Usage: calc_model_count INPUT OUTPUT
+
+Arguments:
+
+  INPUT   Input file with models (CSV).
+  OUTPUT  Output file (NetCDF).
+
+Examples:
+
+bin/calc_model_count input/models.csv data/model_count.nc
+```
+
+### calc\_model\_stats
+
+```
+Calculate model statistics.
+
+Usage: calc_model_stats INPUT MODELS
+
+Arguments:
+
+  INPUT   Input data (CSV). The table should contain a column "Model" identifying the model, and an arbitrary number of other columns to calculate statistics for.
+  MODELS  Table of all models (CSV).
+
+Examples:
+
+bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/model_stats_zelinka2021_table_S1.csv
+bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip5.csv
+bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
+```
+
 ### model\_weights
 
 ```
@@ -86,25 +140,6 @@ of the models file, respectively.
 Examples:
 
 bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
-```
-
-### calc\_model\_stats
-
-```
-Calculate model statistics.
-
-Usage: calc_model_stats INPUT MODELS
-
-Arguments:
-
-  INPUT   Input data (CSV). The table should contain a column "Model" identifying the model, and an arbitrary number of other columns to calculate statistics for.
-  MODELS  Table of all models (CSV).
-
-Examples:
-
-bin/calc_model_stats input/zelinka2021_table_S1.csv input/models.csv > data/model_stats_zelinka2021_table_S1.csv
-bin/calc_model_stats input/ar6_cmip5.csv input/models.csv > data/model_stats_ar6_cmip5.csv
-bin/calc_model_stats input/ar6_cmip6.csv input/models.csv > data/model_stats_ar6_cmip6.csv
 ```
 
 ### plot\_feedbacks [Figure 3]
@@ -151,24 +186,6 @@ bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS
 bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc data/feedbacks_by_family_cmip{5,6}_bayes.nc
 ```
 
-### calc\_bayes
-
-```
-Calculate statistical significance in feedback by group difference between the overall mean and the group mean.
-
-Usage: calc_bayes INPUT OUTPUT
-
-Arguments:
-
-  INPUT   Input file. The output of plot_feedbacks_by_group (NetCDF).
-  OUTPUT  Output file (NetCDF).
-
-Examples:
-
-bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_bayes.nc
-bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
-```
-
 ### plot\_tas [Figure 5 and 6]
 
 ```
@@ -201,23 +218,6 @@ bin/plot_tas input/models.csv none input/cmip5/historical/tas input/HadCRUT.5.0.
 bin/plot_tas input/models.csv none input/cmip5/historical+rcp45/tas input/HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc plot/tas_cmip5_historical+rcp45.pdf 1850 2099 'CMIP5 historical + RCP4.5' divider: 2006
 bin/plot_tas input/models.csv input/cmip5/{piControl,abrupt-4xCO2}/tas none plot/tas_cmip5_abrupt-4xCO2.pdf 1 140 'CMIP5 abrupt-4xCO2'
 bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_cmip5_1pctCO2.pdf 1 140 'CMIP5 1pctCO2'
-```
-
-### calc\_model\_count [Table S1]
-
-```
-Calculate model count by family, institute and country.
-
-Usage: calc_model_count INPUT OUTPUT
-
-Arguments:
-
-  INPUT   Input file with models (CSV).
-  OUTPUT  Output file (NetCDF).
-
-Examples:
-
-bin/calc_model_count input/models.csv data/model_count.nc
 ```
 
 ## License
