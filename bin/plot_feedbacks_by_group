@@ -178,8 +178,8 @@ def plot(group, d, models, vars_, \
 						plt.text(x, np.max(d[var][mask2]), '*',
 							va='bottom', ha='center')
 					if p_null > 0.95:
-						ylim = plt.ylim()
-						dy = ylim[1] - ylim[0]
+						ylim0 = plt.ylim()
+						dy = ylim0[1] - ylim0[0]
 						plt.text(x, np.min(d[var][mask2]) - dy*0.025, '*',
 							va='top', ha='center')
 			handles += [out]
@@ -202,10 +202,7 @@ def plot(group, d, models, vars_, \
 			color='k', lw=0.8, zorder=-2, label=label)
 		handles = [line] + handles
 		i += 1
-	if type(ylim) == dict:
-		ylim1 = plt.ylim(ylim[var])
-	else:
-		ylim1 = plt.ylim(ylim)
+	ylim1 = plt.ylim(ylim)
 	plt.yticks(np.arange(ylim1[0], ylim1[1] + 0.5, 0.5))
 	plt.gca().set_xticks(xticks)
 	plt.gca().set_xticklabels(xticklabels) #, fontsize=5.5)
