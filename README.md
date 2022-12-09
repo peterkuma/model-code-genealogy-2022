@@ -203,6 +203,23 @@ bin/plot_tas input/models.csv input/cmip5/{piControl,abrupt-4xCO2}/tas none plot
 bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_cmip5_1pctCO2.pdf 1 140 'CMIP5 1pctCO2'
 ```
 
+### calc\_model\_count [Table S1]
+
+```
+Calculate model count by family, institute and country.
+
+Usage: calc_model_count INPUT OUTPUT
+
+Arguments:
+
+  INPUT   Input file with models (CSV).
+  OUTPUT  Output file (NetCDF).
+
+Examples:
+
+bin/calc_model_count input/models.csv data/model_count.nc
+```
+
 ## License
 
 This code is open source and can be used freely under the terms of an MIT

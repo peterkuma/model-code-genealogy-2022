@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+'''Calculate model count by family, institute and country.
+
+Usage: calc_model_count INPUT OUTPUT
+
+Arguments:
+
+  INPUT   Input file with models (CSV).
+  OUTPUT  Output file (NetCDF).
+
+Examples:
+
+bin/calc_model_count input/models.csv data/model_count.nc
+'''
+
+import sys
+import numpy as np
+import ds_format as ds
+
+def calc_by(d, k, cmip):
+	n = ds.dim(d, 'i')
+	out = {}
+	phase = 'CMIP%d names' % cmip
+	for i in range(n):
+		name = d[k][i]
+		if d[phase][i] != '':
+			m = d[phase][i].split(',')
+			if name not in out:
+				out[name] = 0
+			out[name] += len(m)
+	return out
+
+if __name__ == '__main__':
+	if len(sys.argv) != 3:
+		sys.stderr.write(sys.modules[__name__].__doc__)
+		sys.exit(1)
+	input_ = sys.argv[1]
+	output = sys.argv[2]
+	print('<- %s' % input_)
+	d = ds.read(input_)
+	dx = {'.': {}}
+	for k in ['Family', 'Institute', 'Country']:
+		kl = k.lower()
+		names = sorted(np.unique(d[k]))
+		dx[kl] = names
+		dx['.'][kl] = {'.dims': [kl]}
+		for cmip in [3, 5, 6]:
+			key = '%s_cmip%d' % (kl, cmip)
+			x = calc_by(d, k, cmip)
+			count = [x.get(name, 0) for name in names]
+			dx[key] = count
+			dx['.'][key] = {'.dims': [kl]}
+	print('-> %s' % output)
+	ds.write(output, dx)
