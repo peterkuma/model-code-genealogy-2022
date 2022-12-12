@@ -11,7 +11,7 @@ based on multiple choices of model "democracy":
 - `model`: All models are equal.
 - `institute`: All institutes are equal.
 - `country`: All countries are equal.
-- `code`: Model weights are calculated based on model code genealogy.
+- `code`: Model weights are calculated based on a model code genealogy.
 
 ![Climate model code genealogy](img/climate_model_code_genealogy.svg?raw=true)
 
