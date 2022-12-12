@@ -13,7 +13,7 @@ based on multiple choices of model "democracy":
 - `country`: All countries are equal.
 - `code`: Model weights are calculated based on model code genealogy.
 
-![Model code genealogy](model_code_genealogy.svg?raw=true)
+![Model code genealogy](img/model_code_genealogy.svg?raw=true)
 
 ## Requirements
 
@@ -42,24 +42,37 @@ pip3 install -r requirements.txt
 
 Input files are stored in the `input` directory.
 
+- `ar6_cmip5.csv`: CMIP5 models table from [IPCC
+  AR6](https://www.ipcc.ch/report/sixth-assessment-report-cycle/).
+- `ar6_cmip6.csv`: CMIP6 models table from [IPCC
+  AR6](https://www.ipcc.ch/report/sixth-assessment-report-cycle/).
+- `cmip5.tar.xz`: [CMIP5](https://esgf-node.llnl.gov/projects/cmip5/)
+  temperature data.
+- `cmip6.tar.xz`: [CMIP6](https://esgf-node.llnl.gov/projects/cmip6/)
+  temperature data.
+- `CMIP5_ECS_ERF_fbks.csv`: CMIP5 feedback, forcing and ECS data from
+  [mzelinka/cmip56_forcing_feedback_ecs](https://github.com/mzelinka/cmip56_forcing_feedback_ecs).
+- `CMIP5_ECS_ERF_fbks.txt`: The same as the above but in the original format.
+- `CMIP6_ECS_ERF_fbks.csv`: CMIP6 feedback, forcing and ECS data from
+  [mzelinka/cmip56_forcing_feedback_ecs](https://github.com/mzelinka/cmip56_forcing_feedback_ecs).
+- `CMIP6_ECS_ERF_fbks.txt`: The same as the above but in the original format.
+- `HadCRUT.5.0.1.0.analysis.summary_series.global.monthly.nc`: [HadCRUT](https://www.metoffice.gov.uk/hadobs/hadcrut5/) global temperature data.
 - `models.csv`: A CSV file containing a database of climate models and their
   code genealogy. A list of references can be found in the supplement.
 - `subset.csv`: An example subset file listing models to calculate weights for.
-- `ar6_cmip5.csv`: CMIP5 models table from IPCC AR6.
-- `ar6_cmip6.csv`: CMIP6 models table from IPCC AR6.
 - `zelinka2021_table_S1.csv`: Table S1 from Zelinka et al. (2021).
 - `zelinka2021_table_S2.csv`: Table S2 from Zelinka et al. (2021).
-- `cmip5.tar.xz`: CMIP5 temperature data.
-- `cmip6.tar.xz`: CMIP6 temperature data.
-- `CMIP5_ECS_ERF_fbks.csv`: CMIP5 feedback, forcing and ECS data from [1].
-- `CMIP5_ECS_ERF_fbks.txt`: The same as the above but in the original format.
-- `CMIP6_ECS_ERF_fbks.csv`: CMIP6 feedback, forcing and ECS data from [1].
-- `CMIP6_ECS_ERF_fbks.txt`: The same as the above but in the original format.
-
-\[1\]: https://github.com/mzelinka/cmip56_forcing_feedback_ecs
 
 Before using the scripts, the input files need to be prepared by unpacking
 the archives `cmip5.tar.xz` and `cmip6.tar.xz`.
+
+## Images
+
+The directory `img` contains images:
+
+- `model_code_genealogy.svg`: Model code genealogy graph in plain SVG.
+- `model_code_genealogy_inkscape.svg`: The same as above, but this is the
+  source file in [Inkscape](https://inkscape.org/) SVG.
 
 ## Programs
 
@@ -226,3 +239,22 @@ bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_
 
 This code is open source and can be used freely under the terms of an MIT
 license as detailed in the file [LICENSE.md](LICENSE.md).
+
+The data in the `input` directory come from various external sources as linked
+in the [Input](#input-files) section above, except for the files `models.csv`
+and `subset.csv` which are internal data files of this project. The data from
+the external sources can be used according to the conditions set by the
+original external source.
+
+The interal files are in the public domain ([CC0 1.0 Universal Public Domain
+Dedication](https://creativecommons.org/publicdomain/zero/1.0/)). To the extent
+possible under law, Peter Kuma has waived all copyright and related or
+neighboring rights to the interal data files. Attribution in the form of a
+citation of the
+[manuscript](https://peterkuma.net/science/papers/kuma_et_al_2022b/) is
+welcome.
+
+This documentation (`README.md`) and the image files in the `img` directory are
+licensed under the [Commons Attribution 4.0 International license (CC BY
+4.0)](https://creativecommons.org/licenses/by/4.0/). A copy of this license
+is included in this repository in the file `LICENSE_CC.txt`.
