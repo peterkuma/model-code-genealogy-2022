@@ -70,7 +70,8 @@ the archives `cmip5.tar.xz` and `cmip6.tar.xz`.
 
 The directory `img` contains images:
 
-- `climate_model_code_genealogy.svg`: Model code genealogy graph in plain SVG.
+- `climate_model_code_genealogy.svg`: A model code genealogy graph in plain
+  SVG.
 - `climate_model_code_genealogy_inkscape.svg`: The same as above, but this is
   the source file in [Inkscape](https://inkscape.org/) SVG.
 
