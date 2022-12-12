@@ -254,6 +254,6 @@ citation of the
 welcome.
 
 This documentation (`README.md`) and the image files in the `img` directory are
-licensed under the [Commons Attribution 4.0 International license (CC BY
-4.0)](https://creativecommons.org/licenses/by/4.0/). A copy of this license
+licensed under the [Creative Commons Attribution 4.0 International license (CC
+BY 4.0)](https://creativecommons.org/licenses/by/4.0/). A copy of this license
 is included in this repository in the file [LICENSE_CC.txt](LICENSE_CC.txt).
