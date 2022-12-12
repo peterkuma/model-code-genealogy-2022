@@ -241,12 +241,11 @@ This code is open source and can be used freely under the terms of an MIT
 license as detailed in the file [LICENSE.md](LICENSE.md).
 
 The data in the `input` directory come from various external sources as linked
-in the [Input](#input-files) section above, except for the files `models.csv`
-and `subset.csv` which are internal data files of this project. The data from
-the external sources can be used according to the conditions set by the
-original external source.
-
-The interal files are in the public domain ([CC0 1.0 Universal Public Domain
+in the [Input files](#input-files) section above, except for the files
+`models.csv` and `subset.csv` which are internal data files of this project.
+The data from the external sources can be used according to the conditions set
+by the original external source. The interal files are in the public domain
+([CC0 1.0 Universal Public Domain
 Dedication](https://creativecommons.org/publicdomain/zero/1.0/)). To the extent
 possible under law, Peter Kuma has waived all copyright and related or
 neighboring rights to the interal data files. Attribution in the form of a
@@ -257,4 +256,4 @@ welcome.
 This documentation (`README.md`) and the image files in the `img` directory are
 licensed under the [Commons Attribution 4.0 International license (CC BY
 4.0)](https://creativecommons.org/licenses/by/4.0/). A copy of this license
-is included in this repository in the file `LICENSE_CC.txt`.
+is included in this repository in the file [LICENSE_CC.txt](LICENSE_CC.txt).
