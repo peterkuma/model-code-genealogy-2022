@@ -255,7 +255,7 @@ citation of the
 welcome.
 
 This documentation (`README.md`), the image files in the `img` directory,
-and the output plots in the directory `plots` are licensed under the [Creative
+and the output plots in the directory `plot` are licensed under the [Creative
 Commons Attribution 4.0 International license (CC BY
 4.0)](https://creativecommons.org/licenses/by/4.0/). A copy of this license is
 included in this repository in the file [LICENSE_CC.txt](LICENSE_CC.txt).
