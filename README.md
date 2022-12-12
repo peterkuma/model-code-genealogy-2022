@@ -155,7 +155,8 @@ of the models file, respectively.
 
 Examples:
 
-bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code.csv
+bin/model_weights code input/models.csv > data/model_weights_code.csv
+bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code_subset.csv
 ```
 
 ### plot\_feedbacks [Figure 3]
