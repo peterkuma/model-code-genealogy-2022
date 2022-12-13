@@ -246,11 +246,11 @@ The data in the `input` directory come from various external sources as linked
 in the [Input files](#input-files) section above, except for the files
 `models.csv` and `subset.csv` which are internal data files of this project.
 The data from the external sources can be used according to the conditions set
-by the original external source. The interal files and output data files in the
+by the original external source. The internal files and output data files in the
 directory `data` are in the public domain ([CC0 1.0 Universal Public Domain
 Dedication](https://creativecommons.org/publicdomain/zero/1.0/)). To the extent
 possible under law, Peter Kuma has waived all copyright and related or
-neighboring rights to the interal data files. Attribution in the form of a
+neighboring rights to the internal data files. Attribution in the form of a
 citation of the
 [manuscript](https://peterkuma.net/science/papers/kuma_et_al_2022b/) is
 welcome.
