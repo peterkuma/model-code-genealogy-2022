@@ -235,7 +235,7 @@ if __name__ == '__main__':
 			plt.axvline(divider, color='k', lw=0.5)
 		label = '%s mean' % type2
 		linestyle = LINESTYLES[i]
-		plt.plot(time[2*sd:-2*sd], tas_avg[2*sd:-2*sd], color='k', lw=1,
+		plt.plot(time[2*sd:-2*sd], tas_avg[2*sd:-2*sd], color='k', lw=1.2,
 			label=label, linestyle=linestyle, zorder=100*(len(TYPES) - i))
 		handles += [mlines.Line2D([], [],
 			color='k', linestyle=linestyle, label=label)]
