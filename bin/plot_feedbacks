@@ -25,6 +25,7 @@ model_weights = SourceFileLoader('module.name',
 
 import sys
 import string
+from warnings import warn
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -124,6 +125,7 @@ def get_weights(type_, models, subset):
 def calc_stats(d, vars_, models_table):
 	out = {}
 	varsx = [x for x in vars_.keys() if x in d.keys()]
+	unmatched = set()
 	for type_ in TYPES:
 		for var in varsx:
 			models = []
@@ -136,11 +138,17 @@ def calc_stats(d, vars_, models_table):
 				weights = get_weights(type_, models_table, models)
 				w = np.array([weights.get(model, np.nan) for model in models])
 				mask = np.isfinite(w)
+				for model in np.array(models)[~mask]:
+					unmatched.add(model)
 				values = np.array(values)
 				out['%s_%s' % (var, type_)] = np.average(values[mask], \
 					weights=w[mask])
 			else:
 				out['%s_%s' % (var, type_)] = 0
+
+	for model in unmatched:
+		warn('Model "%s" not found in the models table' % model)
+
 	return out
 
 def plot(d, s, d1, d2, s1, s2, vars_, diff=False, ylim=None, legend=True,
