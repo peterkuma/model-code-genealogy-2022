@@ -28,6 +28,8 @@ model_weights = SourceFileLoader('module.name',
 	os.path.join(os.path.dirname(__file__), 'model_weights')).load_module()
 
 import sys
+import warnings
+from warnings import warn
 import scipy
 import string
 import pandas as pd
@@ -130,6 +132,7 @@ def plot(group, d, models, vars_, \
 	cmap = plt.get_cmap('tab20')
 	i = 0
 	handles = []
+	match = np.zeros(len(d['Model']), bool)
 	for var in vars_:
 		if var not in d.keys():
 			continue
@@ -143,6 +146,7 @@ def plot(group, d, models, vars_, \
 				if models[group][k] == g:
 					variants += models['variants'][k]
 			mask = np.array([m in variants for m in d['Model']])
+			match |= mask
 			mask2 = np.copy(mask)
 			mask2[mask] &= np.isfinite(d[var][mask])
 			mask3 = np.copy(mask)
@@ -202,6 +206,8 @@ def plot(group, d, models, vars_, \
 			color='k', lw=0.8, zorder=-2, label=label)
 		handles = [line] + handles
 		i += 1
+	for m in d['Model'][~match]:
+		warn('Model "%s" not found in the models table' % m)
 	ylim1 = plt.ylim(ylim)
 	plt.yticks(np.arange(ylim1[0], ylim1[1] + 0.5, 0.5))
 	plt.gca().set_xticks(xticks)
@@ -213,8 +219,10 @@ def plot(group, d, models, vars_, \
 		ylabel = '; '.join([ylabel[var] for var in vars_ if var in d.keys()])
 	plt.ylabel(ylabel)
 	if legend:
-		plt.legend(handles=handles, loc=legend_pos, fontsize=6,
-			handlelength=1, handletextpad=0.5)
+		with warnings.catch_warnings():
+			warnings.simplefilter('ignore')
+			plt.legend(handles=handles, loc=legend_pos, fontsize=6,
+				handlelength=1, handletextpad=0.5)
 	return dout
 
 if __name__ == '__main__':
