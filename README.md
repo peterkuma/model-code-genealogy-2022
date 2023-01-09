@@ -159,6 +159,25 @@ bin/model_weights code input/models.csv > data/model_weights_code.csv
 bin/model_weights code input/models.csv input/subset.csv > data/model_weights_code_subset.csv
 ```
 
+### plot\_var\_weight [Figure 4]
+
+Plot variable-weight diagram.
+
+Usage: plot_var_weight VAR MODELS INPUT OUTPUT TITLE
+
+Arguments:
+
+  VAR     Variable to plot on the x-axis.
+  MODELS  Table of all models (CSV).
+  CMIP    Input data (CSV). The table should contain a column "Model" identifying the model, and columns for variables.
+  OUTPUT  Output plot (PDF).
+  TITLE   Plot title.
+
+Examples:
+
+bin/plot_var_weight ECS input/models.csv input/CMIP5_ECS_ERF_fbks.csv plot/ecs_weight_cmip5.pdf CMIP5
+bin/plot_var_weight ECS input/models.csv input/CMIP6_ECS_ERF_fbks.csv plot/ecs_weight_cmip6.pdf CMIP6
+
 ### plot\_feedbacks [Figure 3]
 
 ```
@@ -177,7 +196,7 @@ Examples:
 bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks.pdf
 ```
 
-### plot\_feedbacks\_by\_group [Figure 4]
+### plot\_feedbacks\_by\_group [Figure 5]
 
 ```
 Plot bar plot with model feedbacks by model group (family or country).
@@ -203,7 +222,7 @@ bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS
 bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc data/feedbacks_by_family_cmip{5,6}_bayes.nc
 ```
 
-### plot\_tas [Figure 5 and 6]
+### plot\_tas [Figure 6 and 7]
 
 ```
 Plot global mean near-surface air temperature.
