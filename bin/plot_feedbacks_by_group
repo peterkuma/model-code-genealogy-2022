@@ -12,8 +12,8 @@ Arguments:
   OUTPUT        Output plot (PDF).
   OUTPUT_CMIP5  CMIP5 plot data output (NetCDF).
   OUTPUT_CMIP6  CMIP6 plot data output (NetCDF).
-  BAYES_CMIP5   CMIP5 Bayes test input (NetCDF).
-  BAYES_CMIP6   CMIP5 Bayes test input (NetCDF).
+  BAYES_CMIP5   CMIP5 Bayes test input calculated by calc_bayes (NetCDF).
+  BAYES_CMIP6   CMIP5 Bayes test input calculated by calc_bayes (NetCDF).
 
 Examples:
 
