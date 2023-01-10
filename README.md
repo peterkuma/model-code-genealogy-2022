@@ -161,6 +161,7 @@ bin/model_weights code input/models.csv input/subset.csv > data/model_weights_co
 
 ### plot\_var\_weight [Figure 4]
 
+```
 Plot variable-weight diagram.
 
 Usage: plot_var_weight VAR MODELS INPUT OUTPUT TITLE
@@ -177,6 +178,7 @@ Examples:
 
 bin/plot_var_weight ECS input/models.csv input/CMIP5_ECS_ERF_fbks.csv plot/ecs_weight_cmip5.pdf CMIP5
 bin/plot_var_weight ECS input/models.csv input/CMIP6_ECS_ERF_fbks.csv plot/ecs_weight_cmip6.pdf CMIP6
+```
 
 ### plot\_feedbacks [Figure 3]
 
