@@ -180,6 +180,8 @@ bin/plot_var_weight ECS input/models.csv input/CMIP5_ECS_ERF_fbks.csv plot/ecs_w
 bin/plot_var_weight ECS input/models.csv input/CMIP6_ECS_ERF_fbks.csv plot/ecs_weight_cmip6.pdf CMIP6
 ```
 
+<img src="plot/preview/ecs_weight_cmip6.png?raw=true" alt="ECS weight CMIP6" style="width: 50%" /><img src="plot/preview/ecs_weight_cmip5.png?raw=true" alt="ECS weight CMIP5" style="width: 50%" />
+
 ### plot\_feedbacks [Figure 3]
 
 ```
@@ -197,6 +199,8 @@ Examples:
 
 bin/plot_feedbacks input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks.pdf
 ```
+
+![Feedbacks](plot/preview/feedbacks.png?raw=true)
 
 ### plot\_feedbacks\_by\_group [Figure 5]
 
@@ -223,6 +227,8 @@ bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS
 bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc
 bin/plot_feedbacks_by_group family separate input/models.csv input/CMIP{5,6}_ECS_ERF_fbks.csv plot/feedbacks_by_family.pdf data/feedbacks_by_family_cmip{5,6}.nc data/feedbacks_by_family_cmip{5,6}_bayes.nc
 ```
+
+![Feedbacks by family](plot/preview/feedbacks_by_family.png?raw=true)
 
 ### plot\_tas [Figure 6 and 7]
 
@@ -257,6 +263,14 @@ bin/plot_tas input/models.csv none input/cmip5/historical+rcp45/tas input/HadCRU
 bin/plot_tas input/models.csv input/cmip5/{piControl,abrupt-4xCO2}/tas none plot/tas_cmip5_abrupt-4xCO2.pdf 1 140 'CMIP5 abrupt-4xCO2'
 bin/plot_tas input/models.csv input/cmip5/{piControl,1pctCO2}/tas none plot/tas_cmip5_1pctCO2.pdf 1 140 'CMIP5 1pctCO2'
 ```
+
+<img src="plot/preview/tas_cmip6_historical.png?raw=true" alt="TAS CMIP6 historical" style="width: 50%" /><img src="plot/preview/tas_cmip6_historical+ssp245.png?raw=true" alt="TAS CMIP6 historical + SSP2-4.5" style="width: 50%" />
+
+<img src="plot/preview/tas_cmip6_abrupt-4xCO2.png?raw=true" alt="TAS CMIP6 abrupt-4xCO2" style="width: 50%" /><img src="plot/preview/tas_cmip6_1pctCO2.png?raw=true" alt="TAS CMIP6 1pctCO2" style="width: 50%" />
+
+<img src="plot/preview/tas_cmip5_historical.png?raw=true" alt="TAS CMIP5 historical" style="width: 50%" /><img src="plot/preview/tas_cmip5_historical+rcp45.png?raw=true" alt="TAS CMIP5 historical + RCP4.5" style="width: 50%" />
+
+<img src="plot/preview/tas_cmip5_abrupt-4xCO2.png?raw=true" alt="TAS CMIP5 abrupt-4xCO2" style="width: 50%" /><img src="plot/preview/tas_cmip5_1pctCO2.png?raw=true" alt="TAS CMIP5 1pctCO2" style="width: 50%" />
 
 ## License
 
