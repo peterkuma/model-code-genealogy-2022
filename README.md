@@ -97,7 +97,7 @@ bin/calc_bayes data/feedbacks_by_family_cmip5.nc data/feedbacks_by_family_cmip5_
 bin/calc_bayes data/feedbacks_by_family_cmip6.nc data/feedbacks_by_family_cmip6_bayes.nc
 ```
 
-### calc\_model\_count [Table S1]
+### calc\_model\_count [Table S2]
 
 ```
 Calculate model count by family, institute and country.
