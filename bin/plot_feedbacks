@@ -141,8 +141,10 @@ def calc_stats(d, vars_, models_table):
 				for model in np.array(models)[~mask]:
 					unmatched.add(model)
 				values = np.array(values)
-				out['%s_%s' % (var, type_)] = np.average(values[mask], \
-					weights=w[mask])
+				m = np.average(values[mask], weights=w[mask])
+				s = np.average(values[mask]**2, weights=w[mask])
+				out['%s_%s' % (var, type_)] = m
+				#out['%s_%s_var' % (var, type_)] = s - m**2
 			else:
 				out['%s_%s' % (var, type_)] = 0
 
