@@ -3,3 +3,5 @@ scipy==1.7.3
 pandas==1.4.3
 pymc3==3.11.5
 ds-format==3.5.1
+pst==2.0.0
+matplotlib==3.7.1
