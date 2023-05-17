@@ -187,7 +187,7 @@ def plot(d, s, d1, d2, s1, s2, vars_, diff=False, ylim=None, legend=True,
 		]
 		plt.bar(x + 0.7/n, y,
 			width=0.7/n,
-			label='Code [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd2*1e3),
+			label='Ancestry [RMSD = %.0f mWm$^{-2}$K$^{-1}$]' % (rmsd2*1e3),
 			color='grey',
 		)
 		if annotated:
@@ -206,9 +206,10 @@ def plot(d, s, d1, d2, s1, s2, vars_, diff=False, ylim=None, legend=True,
 				(s['%s_%s' % (var, type_)] - s['%s_variant' % var]) \
 				for var in varsx
 			]
+			type2 = 'ancestry' if type_ == 'code' else type_
 			plt.bar(x, y,
 				width=0.7/n,
-				label=type_.capitalize(),
+				label=type2.capitalize(),
 				color=COLORS[i],
 				hatch=HATCH[i],
 				alpha=0.999,

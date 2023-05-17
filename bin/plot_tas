@@ -230,7 +230,10 @@ if __name__ == '__main__':
 		for j in range(m):
 			wsum = np.sum(w*np.isfinite(tas[:,j]))
 			tas_avg[j] = np.nansum(tas[:,j]*w)/wsum
-		type2 = 'multi-model' if type_ == 'variant' else type_
+		type2 = {
+			'variant': 'multi-model',
+			'code': 'ancestry',
+		}.get(type_, type_)
 		if divider is not None:
 			plt.axvline(divider, color='k', lw=0.5)
 		label = '%s mean' % type2
