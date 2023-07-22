@@ -14,7 +14,7 @@ based on multiple choices of model "democracy":
 - `code` (ancestry): Model weights are calculated based on a model code
   genealogy.
 
-![Climate model code genealogy](img/climate_model_code_genealogy_1600px.png?raw=true)
+![Climate model code genealogy](img/climate_model_code_genealogy_6000px.png?raw=true)
 
 ## Requirements
 
